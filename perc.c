@@ -797,6 +797,8 @@ int main(int argc , char* argv[]){
    	//END OF MASTER ONLY WORK
 	
 	}
+
+	if(world_rank ==1 ){
 	int *recv = malloc(sizeof(int) * 1);
 	
 	MPI_Recv(&recv, 1, MPI_INT, 0,0, MPI_COMM_WORLD,
@@ -804,7 +806,7 @@ int main(int argc , char* argv[]){
 	
 	printf("%d\n", *recv);
 	//Eeach Process Gets a Piece Of The Matrix to work on -TODO
-	
+	}
 	
 
 
