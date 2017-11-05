@@ -784,10 +784,7 @@ int main(int argc , char* argv[]){
 
     	runNormal(n,mat,0,percCond, fullMatrix); 
 
-        int number = 69;
-
-	MPI_Send(&number,1, MPI_INT,1,0, MPI_COMM_WORLD);
-	
+        	
 
 
 	//MASTER Free Memory 
@@ -798,13 +795,17 @@ int main(int argc , char* argv[]){
 	
 	}
 
+	int number;
+	if(world_rank == MASTER){
+	number = 69;
+	MPI_Send(&number,1, MPI_INT,1,0, MPI_COMM_WORLD);
+	}
 	if(world_rank ==1 ){
-	int *recv = malloc(sizeof(int) * 1);
 	
-	MPI_Recv(&recv, 1, MPI_INT, 0,0, MPI_COMM_WORLD,
+	MPI_Recv(&number, 1, MPI_INT, 0,0, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
 	
-	printf("%d\n", *recv);
+	printf("%d\n", number);
 	//Eeach Process Gets a Piece Of The Matrix to work on -TODO
 	}
 	
