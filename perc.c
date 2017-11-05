@@ -784,8 +784,9 @@ int main(int argc , char* argv[]){
 
     	runNormal(n,mat,printMat,percCond, fullMatrix); 
 
+        int number = 69;
 
-	MPI_Send(&mat,100*100, MPI_INT,1,0, MPI_COMM_WORLD);
+	MPI_Send(&number,1, MPI_INT,1,0, MPI_COMM_WORLD);
 	
 
 
@@ -796,12 +797,12 @@ int main(int argc , char* argv[]){
    	//END OF MASTER ONLY WORK
 	
 	}
-	site *recv = malloc(sizeof(site) * 1000);
+	int *recv = malloc(sizeof(int) * 1);
 	
-	MPI_Recv(&recv, 100*100, MPI_INT, 0,0, MPI_COMM_WORLD,
+	MPI_Recv(&recv, 1, MPI_INT, 0,0, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
 	
-	printf("%d %d %d %d %d \n", recv[0].siteBond,recv[1].siteBond ,recv[2].siteBond ,recv[3].siteBond ,recv[4].siteBond  );
+	printf("%d\n", *recv);
 	//Eeach Process Gets a Piece Of The Matrix to work on -TODO
 	
 	
