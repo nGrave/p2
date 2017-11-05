@@ -782,7 +782,7 @@ int main(int argc , char* argv[]){
  
     	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
 
-    	runNormal(n,mat,printMat,percCond, fullMatrix); 
+    	runNormal(n,mat,0,percCond, fullMatrix); 
 
         int number = 69;
 
