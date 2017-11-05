@@ -733,7 +733,6 @@ int main(int argc , char* argv[]){
     	double time_taken; 
 
    	while( idx < argc){
-		if(strncmp(argv[idx] ,"-p",2)==0 && n <=200) printMat =1;
 		if(strncmp(argv[idx], "-v",2)==0) percCond =1;
 		if(strncmp(argv[idx], "-b",2)==0) bPerc =1; 
 			
@@ -786,7 +785,7 @@ int main(int argc , char* argv[]){
     	runNormal(n,mat,printMat,percCond, fullMatrix); 
 
 
-	MPI_Send(&mat,100*100, MPI_INT,1, MPI_COMM_WORLD);
+	MPI_Send(&mat,100*100, MPI_INT,1,0, MPI_COMM_WORLD);
 	
 
 
@@ -799,7 +798,7 @@ int main(int argc , char* argv[]){
 	}
 	site *recv = malloc(sizeof(site) * 1000);
 	
-	MPI_Recv(&recv, 100*100, MPI_INT, 0, MPI_COMM_WORLD,
+	MPI_Recv(&recv, 100*100, MPI_INT, 0,0, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
 	
 	printf("%d %d %d %d %d \n", recv[0].siteBond,recv[1].siteBond ,recv[2].siteBond ,recv[3].siteBond ,recv[4].siteBond  );
