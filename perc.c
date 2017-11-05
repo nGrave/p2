@@ -1,4 +1,4 @@
-//Authors Nathan Graves 21256779 && Matthew Hall TBA
+//Authors Nathan Graves 21256779 && Matthew Hall 21718301
 //
 //Use Included MakeFile to Compile.
 //Tested on macOS Sierra 10.12.6 with gcc 7.2 
