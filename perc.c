@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <time.h>
 #include "stack.h"
 #include <string.h>
 #include <omp.h>
@@ -40,7 +41,7 @@ void  printLargestCluster(site **mat,int n ,int m, int ldx, int flag){
 		 else  printf(RED  "%c" RESET  , 'o');  
              }
 
-	     else  printf(BLU "%3d"RESET, mat[i][j]);
+	     else  printf(BLU "%d"RESET, mat[i][j].siteBond);
 	    
        	
     }
@@ -767,11 +768,11 @@ int main(int argc , char* argv[]){
      	gettimeofday(&start, NULL);
   
     	if(bPerc){
- 		printf("Seeding Bond Matrix.. Please Wait\n");
+ 		printf("MASTER Seeding Bond Matrix.. Please Wait\n");
 		SeedMatrixBond(mat,n,prob);
     	}
     	else{
-		printf("Seeding Site Matrix.. Please Wait\n");
+		printf("MASTER Site Matrix.. Please Wait\n");
      		SeedMatrixSite(mat,n, prob); 
     	}
     	gettimeofday(&end, NULL);
