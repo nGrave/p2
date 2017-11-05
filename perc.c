@@ -722,22 +722,24 @@ int main(int argc , char* argv[]){
 	//Command Line Options
    	int n = atoi(argv[1]);
     	float prob =atof(argv[2]);
-    	int printMat=0;
-    	int bPerc =0;
+       	int bPerc =0;
     	int percCond =0;
         int idx =3;
-    	int numThreads = 29; 
-
-    	double time_taken; 
-   		while( idx < argc){
-			if(strncmp(argv[idx] ,"-p",2)==0 && n <=200) printMat =1;
-			if(strncmp(argv[idx], "-v",2)==0) percCond =1;
-			if(strncmp(argv[idx], "-b",2)==0) bPerc =1; 
-			
-    		idx++;
-		}
 	
-	int numPieces = numThreads; 
+	//Using all available Processes to us. UNDEFINED RESULTS ON MATRIXES SMALLER THAN 336 -TODO CHANGE
+	int numPieces = 336; 
+
+   
+    	double time_taken; 
+
+   	while( idx < argc){
+		if(strncmp(argv[idx] ,"-p",2)==0 && n <=200) printMat =1;
+		if(strncmp(argv[idx], "-v",2)==0) percCond =1;
+		if(strncmp(argv[idx], "-b",2)==0) bPerc =1; 
+			
+    	idx++;
+	}
+	
 
    	int x, y; //TESTING TODO DELETE
 
@@ -780,19 +782,31 @@ int main(int argc , char* argv[]){
 		             end.tv_usec - start.tv_usec) / 1.e6;
  
     	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
-    
-     
-    	 //Print Matrix if requested
-	if(printMat)printMatrix(mat,n);
 
-	runNormal(n,mat,printMat,percCond, fullMatrix); 
+    	runNormal(n,mat,printMat,percCond, fullMatrix); 
+
+
+	MPI_Send(&mat,100*100, MPI_INT,1, MPI_COMM_WORLD);
+	
+
 
 	//MASTER Free Memory 
 	free(fullMatrix);
      	free(t2);
      	free(mat);
    	//END OF MASTER ONLY WORK
+	
 	}
+	site *recv = malloc(sizeof(site) * 1000);
+	
+	MPI_Recv(&recv, 100*100, MPI_INT, 0, MPI_COMM_WORLD,
+             MPI_STATUS_IGNORE);
+	
+	printf("%d %d %d %d %d \n", recv[0].siteBond,recv[1].siteBond ,recv[2].siteBond ,recv[3].siteBond ,recv[4].siteBond  );
+	//Eeach Process Gets a Piece Of The Matrix to work on -TODO
+	
+	
+
 
 	 //Finalize MPI
 	 MPI_Finalize();
