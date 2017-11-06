@@ -809,14 +809,14 @@ int main(int argc , char* argv[]){
 
 	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
 	int matPartSize = n/numProcs;	
-    	int leftOvers= n - (numThreads* arrPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
+    	int leftOvers= n - (numProcss* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
 
 		
 	for(int i = 0 ; i < numProcs ; i++){
 	
 		int start = matPartSize * i;
 		int end = start + matPartSize;
-     		if(tid == numProcs-1) end += leftOvers;
+     		if(i == numProcs-1) end += leftOvers;
      		int pieceSize = end -start; 
 
 		//TODO - Send Piece Size as a single int first so they can allocate memory
@@ -841,9 +841,11 @@ int main(int argc , char* argv[]){
 	}
 
 	if(world_rank != MASTER ){
-        		
-	// Ie Last Piece Gets Bigger Chunk or Probable Better if MASTER GETS THE BIGGEST ?- TODO	
-	int Heigth = 100; // TODO- Dynaminc
+        //Allow For Leftovers -Piece n -TODO
+	
+
+
+	int Height = 100; // TODO- Dynaminc
 	int Width  = 1200; // 
 
 	site **testr = alloc2d(Height,Width);
