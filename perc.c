@@ -812,7 +812,7 @@ int main(int argc , char* argv[]){
 
 	//MASTER Free Memory 
 	free(fullMatrix);
-     	free(t2);
+     	free(mat[0]);
      	free(mat);
    	//END OF MASTER ONLY WORK
 	
