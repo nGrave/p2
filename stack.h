@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <limits.h>
 
 #ifndef _STACK_H
 #define _STACK_H
@@ -18,10 +20,27 @@
 #define RESET "\x1B[0m"
 
 
-#define numProcs 12
+#define numProcs 24
 #define numNodes 10
 
 #define MASTER 0
+
+//https://stackoverflow.com/questions/40807833/sending-size-t-type-data-with-mpi
+#if SIZE_MAX == UCHAR_MAX
+   #define my_MPI_SIZE_T MPI_UNSIGNED_CHAR
+#elif SIZE_MAX == USHRT_MAX
+   #define my_MPI_SIZE_T MPI_UNSIGNED_SHORT
+#elif SIZE_MAX == UINT_MAX
+   #define my_MPI_SIZE_T MPI_UNSIGNED
+#elif SIZE_MAX == ULONG_MAX
+   #define my_MPI_SIZE_T MPI_UNSIGNED_LONG
+#elif SIZE_MAX == ULLONG_MAX
+   #define my_MPI_SIZE_T MPI_UNSIGNED_LONG_LONG
+#else
+   #error "what is happening here?"
+#endif
+
+
 typedef int **Matrix; 
 // Stack And Opertations
 
