@@ -710,7 +710,38 @@ site **alloc2d(int rows, int cols) {
     return array;
 }
 
+void testPerc(piece *p, int world_rank){
 
+	int vperc =0;
+   	int hperc =0;
+     	 int fullperc =0;
+
+     	int lc =0;
+    	for(int i = 0 ; i < p.numClusters ; i++){
+        		if (p.pieceClusters[i].clusSize > lc)
+				lc =p.pieceClusters[i].clusSize ;
+
+	     	if (p.pieceClusters[i].clusWidth == Width){
+			hperc= 1;
+		if(p.pieceClusters[i].clusHeight == Height)
+			fullperc =1;	
+		}
+	
+		if( p.pieceClusters[i].clusHeight == Width)
+			vperc =1;	      
+    		 }
+
+		if(hperc || vperc){
+			printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
+		}
+		else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank ,
+			       	lc); 
+    
+
+
+
+
+}
 
 
 int main(int argc , char* argv[]){
@@ -734,7 +765,7 @@ int main(int argc , char* argv[]){
 	//Get each part to say hello first.   
 	printf("Hello world from processor %s, rank %d"
            " out of %d processors\n",
-           processor_name, world_rank, world_size-1);
+           processor_name, world_rank+1, world_size);
 
 	if(argc < 3){
 		//Only one Proc Prints Error PLEASE!
@@ -838,6 +869,30 @@ int main(int argc , char* argv[]){
 		//SEND IT..
 		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
 
+		//Do My Bit
+		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, start ,end );
+
+		piece p;
+		size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
+		initPiece(&p, is , Width );
+		
+		findCluster(n , pieceSize,  mat , 0, 0, &p ,0, 0); 
+		testPerc(&p, world_rank );
+
+
+		//Recv Full Pieces Back
+
+
+		//Join Pieces
+		
+
+		//Check perc
+		
+
+		//
+
+
+
 	}
 
 	//MASTER Starts Piece Work Once recieved all pieces
@@ -875,34 +930,7 @@ int main(int argc , char* argv[]){
 		initPiece(&p, is , Width );
 
 		findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
-
-
-	//Testing
-    		 int vperc =0;
-   		 int hperc =0;
-     		 int fullperc =0;
-
-     		int lc =0;
-    		for(int i = 0 ; i < p.numClusters ; i++){
-        		if (p.pieceClusters[i].clusSize > lc)
-				lc =p.pieceClusters[i].clusSize ;
-
-	     	if (p.pieceClusters[i].clusWidth == Width){
-			hperc= 1;
-		if(p.pieceClusters[i].clusHeight == Height)
-			fullperc =1;	
-		}
-	
-		if( p.pieceClusters[i].clusHeight == Width)
-			vperc =1;	      
-    		 }
-
-		if(hperc || vperc){
-			printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
-		}
-		else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank ,
-			       	lc); 
-    
+		testPerc(&p, world_rank );
 
     		 //end test
 	  	//SEND PIECE BACK HERE
