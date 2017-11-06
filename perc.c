@@ -714,20 +714,20 @@ void testPerc(piece *p, int world_rank){
 
 	int vperc =0;
    	int hperc =0;
-     	 int fullperc =0;
+     	int fullperc =0;
 
      	int lc =0;
-    	for(int i = 0 ; i < p.numClusters ; i++){
-        		if (p.pieceClusters[i].clusSize > lc)
-				lc =p.pieceClusters[i].clusSize ;
+    	for(int i = 0 ; i < p->numClusters ; i++){
+        		if (p->pieceClusters[i].clusSize > lc)
+				lc =p->pieceClusters[i].clusSize ;
 
-	     	if (p.pieceClusters[i].clusWidth == Width){
+	     	if (p->pieceClusters[i].clusWidth == Width){
 			hperc= 1;
-		if(p.pieceClusters[i].clusHeight == Height)
+		if(p->pieceClusters[i].clusHeight == Height)
 			fullperc =1;	
 		}
 	
-		if( p.pieceClusters[i].clusHeight == Width)
+		if( p->pieceClusters[i].clusHeight == Width)
 			vperc =1;	      
     		 }
 
