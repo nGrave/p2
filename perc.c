@@ -839,7 +839,7 @@ int main(int argc , char* argv[]){
 
 	initPiece(&test, is , 10 );
 
-	runNormal(10, testr , 1 ,0, test);
+	runNormal(10, testr , 1 ,0, &test);
 
 	free(testr[0]);
 	free(testr);
