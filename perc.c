@@ -154,7 +154,8 @@ void SeedMatrixBond(site **mat,int n, float p){
 
 void freePiece(piece *p, int width ){
 	
- int numClusters = p->numClusters	
+ int numClusters = p->numClusters;
+
 	for(int i =0 ; i < numClusters; i++ ){
 	free(p->pieceClusters[i].colsOccupied);
 	free(p->pieceClusters[i].rowsOccupied);
