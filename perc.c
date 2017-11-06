@@ -828,7 +828,7 @@ int main(int argc , char* argv[]){
         MPI_Status status;
 	int numberOfSitesRead;
 	printf("bp1\n");	
-	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,&status);
+	MPI_Recv(&(testr[0][0]), 100, MPI_site, 0,0, MPI_COMM_WORLD,&status);
 
 	printf("bp2\n");
 	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
