@@ -712,6 +712,24 @@ int main(int argc , char* argv[]){
            " out of %d processors\n",
            processor_name, world_rank, world_size);
 
+
+	//Create Custom Struct Data Types for Piece and Sites
+	//Site
+	MPI_Datatype MPI_site;
+	MPI_Datatype types[] = {MPI_INT};
+	MPI_Aint disp[5]; //5 ints
+	//Elements per Block
+	int blckLen[]= {1,1,1,1,1} ; //5 ints
+	disp[0] = offsetof(site , upperBond ); 
+	disp[1] = offsetof(site , lowerBond ); 
+	disp[2] = offsetof(site , rightBond ); 
+	disp[3] = offsetof(site , leftBond ); 
+	disp[4] = offsetof(site , siteBond ); 
+	
+	MPI_Type_create_struct(5, blcklen, disp, types, &MPI_site);
+	MPI_Type_commit(&MPI_site);
+
+
 	//Master Sets and seeds Matrix -TODO EXTRA all help in seeding ()
 	if(world_rank == MASTER){
 
@@ -797,15 +815,23 @@ int main(int argc , char* argv[]){
 
 	int number;
 	if(world_rank == MASTER){
-	number = 69;
-	MPI_Send(&number,1, MPI_INT,1,0, MPI_COMM_WORLD);
+	site test;
+	test.upperBond = 10;
+	test.lowerBond = 11;
+	test.rightBond = 12;
+	test.leftBond =13;
+	test.siteBond =14;
+
+	MPI_Send(&test,1, MPI_site,1,0, MPI_COMM_WORLD);
 	}
 	if(world_rank ==1 ){
+	site testr;
+
 	
-	MPI_Recv(&number, 1, MPI_INT, 0,0, MPI_COMM_WORLD,
+	MPI_Recv(&testr, 1, MPI_site, 0,0, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
 	
-	printf("%d\n", number);
+	printf("Rank %d Recieved site from %d upper %d lower %d right %d left %d\n",world_rank ,testr.upperBond,testr.lowerBond,testr.rightBond	testr.leftBond,	testr.siteBond);
 	//Eeach Process Gets a Piece Of The Matrix to work on -TODO
 	}
 	
