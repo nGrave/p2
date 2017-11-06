@@ -829,7 +829,7 @@ int main(int argc , char* argv[]){
 	if(world_rank ==1 ){
         		
 	site **testr = alloc2d(10,10);
-        MPI_status status;
+        MPI_Status status;
 	int numberOfSitesRead;
 	printf("bp1\n");	
 	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,&status);
