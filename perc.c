@@ -152,7 +152,18 @@ void SeedMatrixBond(site **mat,int n, float p){
     }
 }
 
- 
+void freePiece(piece *p, int width ){
+	
+ int numClusters = p->numClusters	
+	for(int i =0 ; i < numClusters; i++ ){
+	free(p->pieceClusters[i].colsOccupied);
+	free(p->pieceClusters[i].rowsOccupied);
+	}
+  free(p->pieceClusters);
+
+
+}
+
 void initPiece(piece *p , size_t s, int width){
  p->pieceClusters = malloc(s * sizeof(cluster) + (sizeof(int) *width));
  p->used =0; 
@@ -860,12 +871,14 @@ int main(int argc , char* argv[]){
 
 	piece p;
 	size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
-	initPiece(&p, is , width );
+	initPiece(&p, is , Width );
 
 	findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
 	
-	free(testr[0]);
-	free(testr);
+
+	freePiece(&p , Width );
+	free(mat[0]);
+	free(mat);
 
 	}
 	
