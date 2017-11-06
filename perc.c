@@ -776,12 +776,8 @@ int main(int argc , char* argv[]){
 		initPiece(&fullMatrix[i] , initialSize ,n);
        }   
 
-	//Matrix of sites in Contiguous memory 
-    	bMatrix mat = malloc(n* sizeof(site *));
-   	site *t2 = malloc( n  * n * sizeof(site));
-  	for(int i = 0; i < n; i++){
-		mat[i] = t2 + ( i * n);
-     	}
+	site ** mat = alloc2d(n,n);
+
 	for(int i =0; i < n; i++){
 		for(int j =0 ; j < n ; j++){
            		mat[i][j].upperBond = 0;
