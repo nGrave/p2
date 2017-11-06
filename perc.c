@@ -867,6 +867,7 @@ int main(int argc , char* argv[]){
 
 		//SEND IT..
 		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
+		printf("MASTER  Sent Shit to Proc %d\n", i);
 
 	}
 
@@ -917,7 +918,7 @@ int main(int argc , char* argv[]){
 		int numberOfSitesRead;
 		MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
 		MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
-
+		printf("Proc %d 
 		printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank ,
 			       	numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
