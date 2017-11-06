@@ -878,7 +878,7 @@ int main(int argc , char* argv[]){
 		initPiece(&p, is , n );
 		
 		findCluster(n , matPartSize,  mat , 0, 0, &p ,0, 0); 
-		testPerc(&p, world_rank , n,pieceSize);
+		testPerc(&p, world_rank , n, matPartSize);
 
 
 
