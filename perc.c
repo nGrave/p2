@@ -809,11 +809,10 @@ int main(int argc , char* argv[]){
 	MPI_Type_create_struct(5, blckLen, disp, types, &MPI_site);
 	MPI_Type_commit(&MPI_site);
 
-	//
 
-	//Piece -TODO trouble
+	//Piece -TODO ref https://stackoverflow.com/questions/26896686/in-mpi-in-c-how-to-create-a-struct-of-structs-and-send-it-to-multiple-process
+	//
 //	MPI_Datatype MPI_piece ;
-//	MPI_Aint disps[8];
 
 	//Master Sets and seeds Matrix
 	if(world_rank == MASTER){		
@@ -869,8 +868,10 @@ int main(int argc , char* argv[]){
 		//SEND IT..
 		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
 
+	}
+
 		//Do My Bit
-		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, start ,end );
+		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
 
 		piece p;
 		size_t is = sizeof(int) + sizeof(cluster) + 2*n;
@@ -880,20 +881,15 @@ int main(int argc , char* argv[]){
 		testPerc(&p, world_rank , n,pieceSize);
 
 
-		//Recv Full Pieces Back
+
+		//Recv Full Pieces Back --Can't IMPLEMENT untill sort out custom DataType
 
 
-		//Join Pieces
+		//Join Pieces-use code from p1 run paralell
 		
 
-		//Check perc
-		
+		//Check perc -use code from p1
 
-		//
-
-
-
-	}
 
 	//MASTER Starts Piece Work Once recieved all pieces
 
