@@ -726,7 +726,7 @@ int main(int argc , char* argv[]){
 	disp[3] = offsetof(site , leftBond ); 
 	disp[4] = offsetof(site , siteBond ); 
 	
-	MPI_Type_create_struct(5, blcklen, disp, types, &MPI_site);
+	MPI_Type_create_struct(5, blckLen, disp, types, &MPI_site);
 	MPI_Type_commit(&MPI_site);
 
 
@@ -824,15 +824,14 @@ int main(int argc , char* argv[]){
 
 	MPI_Send(&test,1, MPI_site,1,0, MPI_COMM_WORLD);
 	}
+
 	if(world_rank ==1 ){
 	site testr;
 
+	MPI_Recv(&testr, 1, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 	
-	MPI_Recv(&testr, 1, MPI_site, 0,0, MPI_COMM_WORLD,
-             MPI_STATUS_IGNORE);
+	printf("Rank %d Recieved site from %d upper %d lower %d right %d left %d\n",world_rank ,testr.upperBond,testr.lowerBond,testr.rightBond	,testr.leftBond,testr.siteBond);
 	
-	printf("Rank %d Recieved site from %d upper %d lower %d right %d left %d\n",world_rank ,testr.upperBond,testr.lowerBond,testr.rightBond	testr.leftBond,	testr.siteBond);
-	//Eeach Process Gets a Piece Of The Matrix to work on -TODO
 	}
 	
 
