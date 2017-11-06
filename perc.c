@@ -863,11 +863,9 @@ int main(int argc , char* argv[]){
 	site **mat = alloc2d(Height,Width);
         MPI_Status status;
 	int numberOfSitesRead;
-	printf("bp1\n");	
 	MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
-
-	printf("bp2\n");
 	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
+
 	printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank , numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
 	piece p;
@@ -875,6 +873,48 @@ int main(int argc , char* argv[]){
 	initPiece(&p, is , Width );
 
 	findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
+
+
+	//Testing
+     int vperc =0;
+     int hperc =0;
+     int fullperc =0;
+
+     int lc =0;
+     for(int i = 0 ; i < p.numClusters ; i++){
+        if (p.pieceClusters[i].clusSize > lc)
+		lc =p.pieceClusters[i].clusSize ;
+
+	
+
+     	if (p.pieceClusters[i].clusWidth == Width){
+		hperc= 1;
+		if(p.pieceClusters[i].clusHeight == Height)
+			fullperc =1;	
+
+	}
+	
+	if( p.pieceClusters[i].clusHeight == Width)
+		vperc =1;	      
+     }
+
+   
+
+     if(!percCond){
+	if(fullperc){
+	printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
+	}
+     	else printf(GRN "RANK: %d Matrix Does Not Percolate, Largest CLuster is %d \n"RESET,world_rank , lc); 	
+     }
+
+     else{
+	if(hperc || vperc){
+	printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
+	}
+	else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank , lc); 
+     }
+
+     //end test
 	
 
 	freePiece(&p , Width );
