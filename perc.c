@@ -823,7 +823,7 @@ int main(int argc , char* argv[]){
 	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 	
 	for(int i  = 0; i < 100 ; i++)
-	printf("Rank %d Recieved site from  mat[%d] upper %d lower %d right %d left %d site %d \n",world_rank ,i,testr.upperBond,testr.lowerBond,testr.rightBond	,testr.leftBond,testr.siteBond);
+	printf("Rank %d Recieved site from  mat[%d] upper %d lower %d right %d left %d site %d \n",world_rank ,i,testr[i].upperBond,testr[i].lowerBond,testr[i].rightBond,testr[i].leftBond,testr[i].siteBond);
 	
 	}
 	
