@@ -818,7 +818,7 @@ int main(int argc , char* argv[]){
 	
 
 	if(world_rank ==1 ){
-	site *testr = malloc(sizeof(site) *100);
+	site *testr = malloc(100 *sizeof(int) * 5 );
 
 	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 	
