@@ -800,9 +800,9 @@ int main(int argc , char* argv[]){
  
     	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
 
-    	runNormal(n,mat,0,percCond, fullMatrix); 
-
-        	
+       
+	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
+	MPI_Send(&mat,100, MPI_site,1,0, MPI_COMM_WORLD);
 
 
 	//MASTER Free Memory 
@@ -813,10 +813,9 @@ int main(int argc , char* argv[]){
 	
 	}
 
-	if(world_rank == MASTER){
+	
 
-	MPI_Send(&mat,100, MPI_site,1,0, MPI_COMM_WORLD);
-	}
+	
 
 	if(world_rank ==1 ){
 	site testr = malloc(sizeof(site) *100);
