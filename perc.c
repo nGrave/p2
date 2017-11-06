@@ -877,7 +877,7 @@ int main(int argc , char* argv[]){
 		initPiece(&p, is , Width );
 		
 		findCluster(n , pieceSize,  mat , 0, 0, &p ,0, 0); 
-		testPerc(&p, world_rank );
+		testPerc(&p, world_rank , n,pieceSize);
 
 
 		//Recv Full Pieces Back
@@ -930,7 +930,7 @@ int main(int argc , char* argv[]){
 		initPiece(&p, is , Width );
 
 		findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
-		testPerc(&p, world_rank );
+		testPerc(&p, world_rank,Width,Height );
 
     		 //end test
 	  	//SEND PIECE BACK HERE
