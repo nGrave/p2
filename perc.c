@@ -710,6 +710,9 @@ site **alloc2d(int rows, int cols) {
     return array;
 }
 
+
+
+
 int main(int argc , char* argv[]){
 
 	//Init MPI
@@ -731,10 +734,35 @@ int main(int argc , char* argv[]){
 	//Get each part to say hello first.   
 	printf("Hello world from processor %s, rank %d"
            " out of %d processors\n",
-           processor_name, world_rank, world_size);
+           processor_name, world_rank, world_size-1);
 
+	if(argc < 3){
+		//Only one Proc Prints Error PLEASE!
+		if(world_rank == MASTER) printUsage();
+		//all exit tho
+		exit(EXIT_FAILURE);
+    	}
+	//Command Line Options
+   	int n = atoi(argv[1]);
+    	float prob =atof(argv[2]);
+       	int bPerc =0;
+    	int percCond =0;
+        int idx =3;
+	
+    	double time_taken; 
+
+   	while( idx < argc){
+		if(strncmp(argv[idx], "-v",2)==0) percCond =1;
+		if(strncmp(argv[idx], "-b",2)==0) bPerc =1; 
+			
+    	idx++;
+	}
+
+	int matPartSize = n/numProcs;	
+    	int leftOvers= n - (numProcs* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
 
 	//Create Custom Struct Data Types for Piece and Sites
+
 	//Site
 	MPI_Datatype MPI_site;
 	MPI_Datatype types[5] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
@@ -750,44 +778,23 @@ int main(int argc , char* argv[]){
 	MPI_Type_create_struct(5, blckLen, disp, types, &MPI_site);
 	MPI_Type_commit(&MPI_site);
 
+	//
 
-	//Master Sets and seeds Matrix -TODO EXTRA all help in seeding ()
-	if(world_rank == MASTER){
+	//Piece -TODO trouble
+//	MPI_Datatype MPI_piece ;
+//	MPI_Aint disps[8];
 
-	if(argc < 3){
-		printUsage();
-		exit(EXIT_FAILURE);
-    	}
-	//Command Line Options
-   	int n = atoi(argv[1]);
-    	float prob =atof(argv[2]);
-       	int bPerc =0;
-    	int percCond =0;
-        int idx =3;
+	//Master Sets and seeds Matrix
+	if(world_rank == MASTER){		
+
 	
-	//Using all available Processes to us. UNDEFINED RESULTS ON MATRIXES SMALLER THAN 336 -TODO CHANGE
-	int numPieces = 336; 
-
-   
-    	double time_taken; 
-
-   	while( idx < argc){
-		if(strncmp(argv[idx], "-v",2)==0) percCond =1;
-		if(strncmp(argv[idx], "-b",2)==0) bPerc =1; 
-			
-    	idx++;
-	}
-	
-
-   	int x, y; //TESTING TODO DELETE
-
-	//MASTER Holds All THe Pieces
 	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
     	piece *fullMatrix = malloc(sizeof(piece) * numPieces);
 	for(int i = 0 ; i < numPieces; i++ ){	
 		initPiece(&fullMatrix[i] , initialSize ,n);
        }   
 
+	//Contigous to make sending a little easier
 	site ** mat = alloc2d(n,n);
 
 	for(int i =0; i < n; i++){
@@ -820,29 +827,20 @@ int main(int argc , char* argv[]){
        
 
 	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
-	int matPartSize = n/numProcs;	
-    	int leftOvers= n - (numProcs* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
-
 		
-	for(int i = 0 ; i < numProcs -1 ; i++){
+	for(int i = 1 ; i < numProcs -1 ; i++){
 	
 		int start = matPartSize * i;
 		int end = start + matPartSize;
      		if(i == numProcs-1) end += leftOvers;
      		int pieceSize = end -start; 
 
-		//TODO - Send Piece Size as a single int first so they can allocate memory
-
 		//SEND IT..
 		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
 
 	}
 
-	//Recieve A Piece Back
-	
-	
 	//MASTER Starts Piece Work Once recieved all pieces
-
 
 	//MASTER Free Memory 
 	free(fullMatrix);
@@ -854,71 +852,72 @@ int main(int argc , char* argv[]){
 
 	if(world_rank != MASTER ){
         //Allow For Leftovers -Piece n -TODO
-	
+		int start = matPartSize * world_rank;
+		int end = start + matPartSize;
+     		if(i == numProcs-1) end += leftOvers;
+     		int Height = end -start; 
+		int Width  = n; // 
 
+      		printf("Processor %d Starting work on mat[%d] to mat[%d]\n" , world_rank, start ,end )
+        
+		
+		site **mat = alloc2d(Height,Width);
+        	MPI_Status status;
+		int numberOfSitesRead;
+		MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
+		MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
 
-	int Height = 100; // TODO- Dynaminc
-	int Width  = 1100; // 
+		printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank ,
+			       	numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
-	site **mat = alloc2d(Height,Width);
-        MPI_Status status;
-	int numberOfSitesRead;
-	MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
-	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
+		piece p;
+		size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
+		initPiece(&p, is , Width );
 
-	printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank , numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
-
-	piece p;
-	size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
-	initPiece(&p, is , Width );
-
-	findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
+		findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
 
 
 	//Testing
-     int vperc =0;
-     int hperc =0;
-     int fullperc =0;
+    		 int vperc =0;
+   		 int hperc =0;
+     		 int fullperc =0;
 
-     int lc =0;
-     for(int i = 0 ; i < p.numClusters ; i++){
-        if (p.pieceClusters[i].clusSize > lc)
-		lc =p.pieceClusters[i].clusSize ;
+     		int lc =0;
+    		for(int i = 0 ; i < p.numClusters ; i++){
+        		if (p.pieceClusters[i].clusSize > lc)
+				lc =p.pieceClusters[i].clusSize ;
 
-	
-
-     	if (p.pieceClusters[i].clusWidth == Width){
-		hperc= 1;
+	     	if (p.pieceClusters[i].clusWidth == Width){
+			hperc= 1;
 		if(p.pieceClusters[i].clusHeight == Height)
 			fullperc =1;	
-
-	}
+		}
 	
-	if( p.pieceClusters[i].clusHeight == Width)
-		vperc =1;	      
-     }
+		if( p.pieceClusters[i].clusHeight == Width)
+			vperc =1;	      
+    		 }
 
-  
-     
-	if(hperc || vperc){
-	printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
-	}
-	else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank , lc); 
+		if(hperc || vperc){
+			printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
+		}
+		else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank ,
+			       	lc); 
     
 
-     //end test
+    		 //end test
+	  	//SEND PIECE BACK HERE
+
+		
+		freePiece(&p , Width );
+		free(mat[0]);
+		free(mat);
+
+		}
 	
 
-	freePiece(&p , Width );
-	free(mat[0]);
-	free(mat);
 
-	}
-	
-
-
-	 //Finalize MPI
-	 MPI_Finalize();
+	//Finalize MPI
+	MPI_Finalize();
 
 
 
