@@ -877,7 +877,7 @@ int main(int argc , char* argv[]){
 		size_t is = sizeof(int) + sizeof(cluster) + 2*n;
 		initPiece(&p, is , n );
 		
-		findCluster(n , pieceSize,  mat , 0, 0, &p ,0, 0); 
+		findCluster(n , matPartSize,  mat , 0, 0, &p ,0, 0); 
 		testPerc(&p, world_rank , n,pieceSize);
 
 
