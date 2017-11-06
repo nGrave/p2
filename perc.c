@@ -809,7 +809,7 @@ int main(int argc , char* argv[]){
 
 	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
 	int matPartSize = n/numProcs;	
-    	int leftOvers= n - (numProcss* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
+    	int leftOvers= n - (numProcs* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
 
 		
 	for(int i = 0 ; i < numProcs ; i++){
