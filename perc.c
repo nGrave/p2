@@ -789,8 +789,8 @@ int main(int argc , char* argv[]){
 
 	
 	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
-    	piece *fullMatrix = malloc(sizeof(piece) * numPieces);
-	for(int i = 0 ; i < numPieces; i++ ){	
+    	piece *fullMatrix = malloc(sizeof(piece) * numProcs);
+	for(int i = 0 ; i < numProcsy; i++ ){	
 		initPiece(&fullMatrix[i] , initialSize ,n);
        }   
 
@@ -854,11 +854,11 @@ int main(int argc , char* argv[]){
         //Allow For Leftovers -Piece n -TODO
 		int start = matPartSize * world_rank;
 		int end = start + matPartSize;
-     		if(i == numProcs-1) end += leftOvers;
+     		if(world-rank == numProcs-1) end += leftOvers;
      		int Height = end -start; 
 		int Width  = n; // 
 
-      		printf("Processor %d Starting work on mat[%d] to mat[%d]\n" , world_rank, start ,end )
+      		printf("Processor %d Starting work on mat[%d] to mat[%d]\n" , world_rank, start ,end );
         
 		
 		site **mat = alloc2d(Height,Width);
