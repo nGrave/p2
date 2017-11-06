@@ -17,6 +17,10 @@
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
 
+
+#define numProcs 12
+#define numNodes 10
+
 #define MASTER 0
 typedef int **Matrix; 
 // Stack And Opertations

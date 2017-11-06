@@ -806,29 +806,51 @@ int main(int argc , char* argv[]){
     	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
 
        
+
 	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
-	MPI_Send(&(mat[0][0]),10*10, MPI_site,1,0, MPI_COMM_WORLD);
+	int matPartSize = n/numProcs;	
+    	int leftOvers= n - (numThreads* arrPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
+
+		
+	for(int i = 0 ; i < numProcs ; i++){
+	
+		int start = matPartSize * i;
+		int end = start + matPartSize;
+     		if(tid == numProcs-1) end += leftOvers;
+     		int pieceSize = end -start; 
+
+		//TODO - Send Piece Size as a single int first so they can allocate memory
+
+		//SEND IT..
+		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
+
+	}
+
+	//Recieve A Piece Back
+	
+	
+	//MASTER Starts Piece Work Once recieved all pieces
 
 
 	//MASTER Free Memory 
 	free(fullMatrix);
      	free(mat[0]);
      	free(mat);
-   	//END OF MASTER ONLY WORK
+   	//END OF MASTER WORK
 	
 	}
 
-	
-
-	
-
-	if(world_rank ==1 ){
+	if(world_rank != MASTER ){
         		
-	site **testr = alloc2d(10,10);
+	// Ie Last Piece Gets Bigger Chunk or Probable Better if MASTER GETS THE BIGGEST ?- TODO	
+	int Heigth = 100; // TODO- Dynaminc
+	int Width  = 1200; // 
+
+	site **testr = alloc2d(Height,Width);
         MPI_Status status;
 	int numberOfSitesRead;
 	printf("bp1\n");	
-	MPI_Recv(&(testr[0][0]), 100, MPI_site, 0,0, MPI_COMM_WORLD,&status);
+	MPI_Recv(&(testr[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
 
 	printf("bp2\n");
 	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
