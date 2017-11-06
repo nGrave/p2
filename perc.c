@@ -899,12 +899,12 @@ int main(int argc , char* argv[]){
      }
 
   
-     else{
+     
 	if(hperc || vperc){
 	printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
 	}
 	else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank , lc); 
-     }
+    
 
      //end test
 	
