@@ -827,9 +827,17 @@ int main(int argc , char* argv[]){
 	
 
 	if(world_rank ==1 ){
-	site **testr = alloc2d(10,10); 
-	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-	
+        		
+	site **testr = alloc2d(10,10);
+        MPI_status status;
+	int numberOfSitesRead;
+	printf("bp1\n");	
+	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,&status);
+
+	printf("bp2\n");
+	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
+	printf("After recvieving %d from %d tag =%d \n",numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
+
 	for(int i  = 0; i < 10 ; i++){
 		for(int j = 0 ; j < 10; j ++){
 			printf("Rank %d Recieved site from  mat[%d][%d] upper %d lower %d right %d left %d site %d \n",world_rank ,i,j,testr[i][j].upperBond,testr[i][j].lowerBond,testr[i][j].rightBond,testr[i][j].leftBond,testr[i][j].siteBond);
