@@ -898,15 +898,7 @@ int main(int argc , char* argv[]){
 		vperc =1;	      
      }
 
-   
-
-     if(!percCond){
-	if(fullperc){
-	printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
-	}
-     	else printf(GRN "RANK: %d Matrix Does Not Percolate, Largest CLuster is %d \n"RESET,world_rank , lc); 	
-     }
-
+  
      else{
 	if(hperc || vperc){
 	printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
