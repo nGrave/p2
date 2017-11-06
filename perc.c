@@ -812,7 +812,7 @@ int main(int argc , char* argv[]){
     	int leftOvers= n - (numProcs* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
 
 		
-	for(int i = 0 ; i < numProcs ; i++){
+	for(int i = 0 ; i < numProcs -1 ; i++){
 	
 		int start = matPartSize * i;
 		int end = start + matPartSize;
@@ -846,25 +846,24 @@ int main(int argc , char* argv[]){
 
 
 	int Height = 100; // TODO- Dynaminc
-	int Width  = 1200; // 
+	int Width  = 1100; // 
 
-	site **testr = alloc2d(Height,Width);
+	site **mat = alloc2d(Height,Width);
         MPI_Status status;
 	int numberOfSitesRead;
 	printf("bp1\n");	
-	MPI_Recv(&(testr[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
+	MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
 
 	printf("bp2\n");
 	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
-	printf("After recvieving %d from %d tag =%d \n",numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
+	printf("% Proc %d After recvieving %d from %d tag =%d \n",world_rank , numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
-	piece test;
-	size_t is = sizeof(int) + sizeof(cluster) + 2*10;
+	piece p;
+	size_t is = sizeof(int) + sizeof(cluster) + 2*width;
+	initPiece(&p, is , width );
 
-	initPiece(&test, is , 10 );
-
-	runNormal(10, testr , 1 ,0, &test);
-
+	findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
+	
 	free(testr[0]);
 	free(testr);
 
