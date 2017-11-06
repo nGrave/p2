@@ -873,8 +873,8 @@ int main(int argc , char* argv[]){
 		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, start ,end );
 
 		piece p;
-		size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
-		initPiece(&p, is , Width );
+		size_t is = sizeof(int) + sizeof(cluster) + 2*n;
+		initPiece(&p, is , n );
 		
 		findCluster(n , pieceSize,  mat , 0, 0, &p ,0, 0); 
 		testPerc(&p, world_rank , n,pieceSize);
