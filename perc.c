@@ -856,10 +856,10 @@ int main(int argc , char* argv[]){
 
 	printf("bp2\n");
 	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
-	printf("% Proc %d After recvieving %d from %d tag =%d \n",world_rank , numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
+	printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank , numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
 	piece p;
-	size_t is = sizeof(int) + sizeof(cluster) + 2*width;
+	size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
 	initPiece(&p, is , width );
 
 	findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
