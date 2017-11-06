@@ -739,7 +739,7 @@ void testPerc(piece *p, int world_rank ,int Width , int Height){
 
 
 
-	printf(RED "RANK:%d  Width %d Height larestCluster is %d at largestClusterIdx %d numClusters is %zu memory used in this piece is %zu allocated %d  \n"RESET ,world_rank,Width,Height, p->largestCluster, p->largestClusterIdx, p->numClusters, p->used, p->size); 
+	printf(RED "RANK:%d  Width %d Height %d larestCluster is %d at largestClusterIdx %d numClusters is %zu memory used in this piece is %zu allocated %d  \n"RESET ,world_rank,Width,Height, p->largestCluster, p->largestClusterIdx, p->numClusters, p->used, p->size); 
     		
              // printLargestCluster(mat,Width,Height,p->.largestClusterIdx,1);
 
