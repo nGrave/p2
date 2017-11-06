@@ -732,11 +732,16 @@ void testPerc(piece *p, int world_rank ,int Width , int Height){
     		 }
 
 		if(hperc || vperc){
-			printf(GRN "RANK: %d Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
+			printf(GRN "RANK:%d  Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
 		}
 		else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank ,
 			       	lc); 
-    
+
+
+
+	printf(RED "RANK:%d  Width %d Height larestCluster is %d at largestClusterIdx %d numClusters is %zu memory used in this piece is %zu allocated %d  \n"RESET ,world_rank,Width,Height, p->largestCluster, p->largestClusterIdx, p->numClusters, p->used, p->size); 
+    		
+             // printLargestCluster(mat,Width,Height,p->.largestClusterIdx,1);
 
 
 
@@ -867,8 +872,7 @@ int main(int argc , char* argv[]){
 
 		//SEND IT..
 		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
-		printf("MASTER  Sent Shit to Proc %d\n", i);
-
+		
 	}
 
 		//Do My Bit
