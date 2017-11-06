@@ -689,7 +689,7 @@ void printUsage(){
 
 }
 
-site **2dAlloc(int rows, int cols) {
+site **alloc2d(int rows, int cols) {
     site *data = malloc(rows*cols*sizeof(site));
     site **array= malloc(rows*sizeof(int*));
     for (int i=0; i<rows; i++)
@@ -827,7 +827,7 @@ int main(int argc , char* argv[]){
 	
 
 	if(world_rank ==1 ){
-	site **testr = 2dAlloc(10,10); 
+	site **testr = alloc2d(10,10); 
 	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 	
 	for(int i  = 0; i < 10 ; i++){
