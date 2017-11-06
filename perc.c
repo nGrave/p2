@@ -716,7 +716,7 @@ int main(int argc , char* argv[]){
 	//Create Custom Struct Data Types for Piece and Sites
 	//Site
 	MPI_Datatype MPI_site;
-	MPI_Datatype types[1] = {MPI_INT};
+	MPI_Datatype types[5] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
 	MPI_Aint disp[5]; //5 ints
 	//Elements per Block
 	int blckLen[5]= {1,1,1,1,1} ; //5 ints
