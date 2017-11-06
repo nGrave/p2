@@ -834,12 +834,11 @@ int main(int argc , char* argv[]){
 	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
 	printf("After recvieving %d from %d tag =%d \n",numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
-	peice test;
-	size_t is = sizeof(int) + sizeof(cluster) + 2*n;
+	piece test;
+	size_t is = sizeof(int) + sizeof(cluster) + 2*10;
 
-	initPiece(&test, is , n );
+	initPiece(&test, is , 10 );
 
-	int runNormal(int n, site **mat, int printMat, int percCond,piece *m)
 	runNormal(10, testr , 1 ,0, test);
 
 	free(testr[0]);
