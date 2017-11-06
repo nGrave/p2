@@ -814,22 +814,17 @@ int main(int argc , char* argv[]){
 	}
 
 	if(world_rank == MASTER){
-	site test;
-	test.upperBond = 10;
-	test.lowerBond = 11;
-	test.rightBond = 12;
-	test.leftBond =13;
-	test.siteBond =14;
 
-	MPI_Send(&test,1, MPI_site,1,0, MPI_COMM_WORLD);
+	MPI_Send(&mat,100, MPI_site,1,0, MPI_COMM_WORLD);
 	}
 
 	if(world_rank ==1 ){
-	site testr;
+	site testr = malloc(sizeof(site) *100);
 
-	MPI_Recv(&testr, 1, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 	
-	printf("Rank %d Recieved site from %d upper %d lower %d right %d left %d\n",world_rank ,testr.upperBond,testr.lowerBond,testr.rightBond	,testr.leftBond,testr.siteBond);
+	for(int i  = 0; i < 100 ; i++)
+	printf("Rank %d Recieved site from  mat[%d] upper %d lower %d right %d left %d site %d \n",world_rank ,i,testr.upperBond,testr.lowerBond,testr.rightBond	,testr.leftBond,testr.siteBond);
 	
 	}
 	
