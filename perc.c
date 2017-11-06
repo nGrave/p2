@@ -834,11 +834,13 @@ int main(int argc , char* argv[]){
 	MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
 	printf("After recvieving %d from %d tag =%d \n",numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
-	for(int i  = 0; i < 10 ; i++){
-		for(int j = 0 ; j < 10; j ++){
-			printf("Rank %d Recieved site from  mat[%d][%d] upper %d lower %d right %d left %d site %d \n",world_rank ,i,j,testr[i][j].upperBond,testr[i][j].lowerBond,testr[i][j].rightBond,testr[i][j].leftBond,testr[i][j].siteBond);
-		}
-	}
+	peice test;
+	size_t is = sizeof(int) + sizeof(cluster) + 2*n;
+
+	initPiece(&test, is , n );
+
+	int runNormal(int n, site **mat, int printMat, int percCond,piece *m)
+	runNormal(10, testr , 1 ,0, test);
 
 	free(testr[0]);
 	free(testr);
