@@ -710,7 +710,7 @@ site **alloc2d(int rows, int cols) {
     return array;
 }
 
-void testPerc(piece *p, int world_rank){
+void testPerc(piece *p, int world_rank ,int Width , int Height){
 
 	int vperc =0;
    	int hperc =0;
