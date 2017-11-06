@@ -689,6 +689,16 @@ void printUsage(){
 
 }
 
+//https://stackoverflow.com/questions/5901476/sending-and-receiving-2d-array-over-mpi
+int **alloc_2d_int(int rows, int cols) {
+    int *data = malloc(rows*cols*sizeof(int));
+    int **array= malloc(rows*sizeof(int*));
+    for (int i=0; i<rows; i++)
+        array[i] = &(data[cols*i]);
+
+    return array;
+}
+
 int main(int argc , char* argv[]){
 
 	//Init MPI
@@ -802,7 +812,7 @@ int main(int argc , char* argv[]){
 
        
 	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
-	MPI_Send(&mat,100, MPI_site,1,0, MPI_COMM_WORLD);
+	MPI_Send(&(mat[0][0],10*10, MPI_site,1,0, MPI_COMM_WORLD);
 
 
 	//MASTER Free Memory 
@@ -818,13 +828,18 @@ int main(int argc , char* argv[]){
 	
 
 	if(world_rank ==1 ){
-	site *testr = malloc(100 *sizeof(int) * 5 );
-
+	site **testr = alloc_2d_int(10,10); 
 	MPI_Recv(&testr, 100, MPI_site, 0,0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 	
-	for(int i  = 0; i < 100 ; i++)
-	printf("Rank %d Recieved site from  mat[%d] upper %d lower %d right %d left %d site %d \n",world_rank ,i,testr[i].upperBond,testr[i].lowerBond,testr[i].rightBond,testr[i].leftBond,testr[i].siteBond);
-	
+	for(int i  = 0; i < 10 ; i++){
+		for(int j = 0 ; j < 10 j ++){
+			printf("Rank %d Recieved site from  mat[%d][%d] upper %d lower %d right %d left %d site %d \n",world_rank ,i,j,testr[i][j].upperBond,testr[i][j].lowerBond,testr[i][j].rightBond,testr[i][j].leftBond,testr[i][j].siteBond);
+		}
+	}
+
+	free(testr[0]);
+	free(testr);
+
 	}
 	
 
