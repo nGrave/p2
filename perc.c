@@ -893,7 +893,8 @@ int main(int argc , char* argv[]){
 
 	for(int i = 0 ; i < numProcs -1 ; i++){
 		size_t psiz; 
-		MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD);
+		MPI_Status status;
+		MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
 		printf("Size of Piece from %d is %zu\n", i ,psiz);
 	}
 
@@ -949,7 +950,7 @@ int main(int argc , char* argv[]){
 		
 		size_t psiz = sizeof(p);
 		MPI_Send(&psiz,1, my_MPI_SIZE_T,0,world_rank, MPI_COMM_WORLD);
-		printf("Proc %d sent size %d to piece \n", world_rank, psiz);
+		printf("Proc %d sent size %zu to piece \n", world_rank, psiz);
 		//now send data
 
 		
