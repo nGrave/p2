@@ -22,6 +22,7 @@ int addOne(int number, int size){
     return (number+1) % size;
 }
 
+//
 // Will subtract one from number, wrapping around if necessary
 int minusOne (int number, int size){
     if(number == 0) return size-1;
