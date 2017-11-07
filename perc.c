@@ -909,8 +909,7 @@ int main(int argc , char* argv[]){
 	}
 
 	if(world_rank != MASTER ){
-        //Allow For Leftovers -Piece n -TODO
-		int start = matPartSize * world_rank;
+       		int start = matPartSize * world_rank;
 		int end = start + matPartSize;
      		if(world_rank == numProcs-1) end += leftOvers;
      		int Height = end -start; 
