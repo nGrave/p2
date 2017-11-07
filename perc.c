@@ -818,7 +818,9 @@ int main(int argc , char* argv[]){
 
 	//Piece -TODO ref https://stackoverflow.com/questions/26896686/in-mpi-in-c-how-to-create-a-struct-of-structs-and-send-it-to-multiple-process
 	//
-//	MPI_Datatype MPI_piece ;
+//	MPI_Datatype MPI_cluster ;
+//	MPI_Datatype types[] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
+
 
 	//Master Sets and seeds Matrix
 	if(world_rank == MASTER){		
@@ -889,6 +891,11 @@ int main(int argc , char* argv[]){
 		findCluster(n , matPartSize,  mat , 0, 0, &p ,0, 0); 
 		testPerc(&p, world_rank , n, matPartSize);
 
+	for(int i = 0 ; i < numProcs -1 ; i++){
+		size_t psiz; 
+		MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD);
+		printf("Size of Piece from %d is %zu\n", i ,psiz);
+	}
 
 
 		//Recv Full Pieces Back --Can't IMPLEMENT untill sort out custom DataType
@@ -939,6 +946,11 @@ int main(int argc , char* argv[]){
 
     		 //end test
 	  	//SEND PIECE BACK HERE
+		
+		size_t psiz = sizeof(p);
+		MPI_Send(&psiz,1, my_MPI_SIZE_T,0,world_rank, MPI_COMM_WORLD);
+		printf("Proc %d sent size %d to piece \n", world_rank, psiz);
+		//now send data
 
 		
 		freePiece(&p , Width );
