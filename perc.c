@@ -562,7 +562,7 @@ int main(int argc , char* argv[]){
 
 
 	//Matrix Seeded By MASTER 		
-	for(int i = 1 ; i < numProcs -1 ; i++){
+	for(int i = 0 ; i < numProcs -1 ; i++){
 	
 		int start = matPartSize * i;
 		int end = start + matPartSize;
