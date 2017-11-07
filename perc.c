@@ -913,7 +913,7 @@ int main(int argc , char* argv[]){
 
 		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
 		for(int i = 1 ; i < numProcs ;i ++){
-			fullMatrix[i] = &fullMatrix[0];
+			*fullMatrix[i] = &fullMatrix[0];
 		}
 	
 
