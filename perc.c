@@ -485,7 +485,7 @@ int main(int argc , char* argv[]){
 	int matPartSize = n/numProcs;	
     	int leftOvers= n - (numProcs* matPartSize); 
 
-//	printf(GRN"matPartSize = %d , Lo = %d\n" RESET , matPartSize, leftOvers); 
+	printf(GRN"matPartSize = %d , Lo = %d\n" RESET , matPartSize, leftOvers); 
 	//Create Custom Struct Data Types for Piece and Sites
 
 	//Site
@@ -799,7 +799,7 @@ int main(int argc , char* argv[]){
      		if(world_rank == numProcs-1) end += leftOvers;
      		int Height = end -start; 
 		int Width  = n; // 
-	//	printf(RED "RANK:%d leftovers =%d start %d matps = %d , end %d height%d width %d \n" RESET, world_rank, leftOvers ,start, matPartSize, end,Height,Width  );
+		printf(RED "RANK:%d leftovers =%d start %d matps = %d , end %d height%d width %d \n" RESET, world_rank, leftOvers ,start, matPartSize, end,Height,Width  );
 
 
       		printf("n is %d Processor %d ready to recieve work expecting  mat[%d] to mat[%d]\n" ,n, world_rank, start ,end );
