@@ -991,13 +991,10 @@ int main(int argc , char* argv[]){
 		piece p; 
 		MPI_Recv(&p, 1 , MPI_piece, 0,0, MPI_COMM_WORLD,&st);
 		
-		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",c.clusterID ,c.parentClusID,c.parentPieceID ,c.clusHeight,c.clusWidth,c.clusSize);
+		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",p.pieceClusters[0].clusterID ,p.pieceClusters[0].parentClusID,p.pieceClusters[0].parentPieceID ,
+				p.pieceClusters[0].clusHeight,p.pieceClusters[0].clusWidth,p.pieceClusters[0].clusSize);
 	
-	
-		for(int i = 0; i < n; i++){
-		printf("colsOcc[%d] = %d rowsOccuied[%d] = %d \n",i,	c.colsOccupied[i] ,i,c.rowsOccupied[i] );
-		}
-	
+		
 
        		int start = matPartSize * world_rank;
 		int end = start + matPartSize;

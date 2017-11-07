@@ -72,7 +72,7 @@ typedef struct{
  int numClusters;
  size_t used;
  size_t size;
- cluster pieceClusters[MaxClustersPerPiece];
+ cluster *pieceClusters;
 } piece; 
 
 
