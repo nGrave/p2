@@ -928,6 +928,7 @@ int main(int argc , char* argv[]){
 
 		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
 		for(int i = 1 ; i < numProcs ;i ++){
+			printf("i:%d Bp1\n",i);
 		    copyPiece(&fullMatrix[0] , &fullMatrix[i] ,n);
 		}
 	
@@ -980,7 +981,7 @@ int main(int argc , char* argv[]){
 		
 		size_t psiz = p.size;
 		MPI_Send(&psiz,1, my_MPI_SIZE_T,0,world_rank, MPI_COMM_WORLD);
-		printf("Proc %d sent size %zu to piece \n", world_rank, psiz);
+		printf("Proc %d sent size %zu to Master% \n", world_rank, psiz);
 		//now send data
 
 		//Free Piece
