@@ -594,7 +594,7 @@ int main(int argc , char* argv[]){
 		for(int i = 0 ; i < numProcs -1 ; i++){
 			size_t psiz; 
 			MPI_Status status;
-			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
+			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i+1,i+1, MPI_COMM_WORLD, &status);
 			printf("Size of Piece from %d is %zu\n", i ,psiz);
 			
 		}
