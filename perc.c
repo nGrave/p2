@@ -193,14 +193,14 @@ void insertCluster(piece *p, int width,  cluster c) {
 void copyPiece(piece *p, piece *new, int width){
 
 	int n = p->numClusters;
-	for(int i = 0; i < n i++){
+	for(int i = 0; i < n ; i++){
 		insertCluster(new, width, p->pieceClusters[i] );
 	}
 	
 	new->largestCluster = p->largestCluster;
 	new->largestClusterIdx =  p->largestClusterIdx;
 	new->percolates = p->percolates;
-	new->numClusters = p->numClusters=;
+	new->numClusters = p->numClusters;
 	
 }
 void initCluster(cluster *c, int width){
@@ -928,7 +928,7 @@ int main(int argc , char* argv[]){
 
 		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
 		for(int i = 1 ; i < numProcs ;i ++){
-		    copyPiece(fullMatrix[0] , fullMatrix[i] ,n);
+		    copyPiece(&fullMatrix[0] , &fullMatrix[i] ,n);
 		}
 	
 
