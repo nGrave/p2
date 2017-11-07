@@ -420,48 +420,196 @@ void growCluster(piece *m, int pceID, int clusID, int pce2ID, int clus2ID, int n
 }
 
 
-int runParalell(int n, site  **mat,  int printMat, int percCond,  int numThreads, piece *m){
 
-     omp_set_num_threads(numThreads);  
+void printUsage(){
+		printf(BLU "Usage: ./perc {MatrixSize} {SeedingProbability} {Optional Flags}\n-p: Prints to console a visual representation of matrix- ONLY USE FOR SMALL MATRIX\n-v: Matrix only has to percolate vertically or horizontially -DEFAULT IS BOTH\n-b: Bond Percolation - DEFAULT IS SITE PERCOLATION\n-o Run with openMp\n-c Compare with regular\n"RESET );
 
-     int tid;   
-     int arrPartSize = n/numThreads;	
-     int leftOvers= n - (numThreads* arrPartSize);     
+}
 
-     //Start Timer
-     struct timeval start, end;
-     gettimeofday(&start,NULL);
-     #pragma omp parallel private(tid)
-     {
+site **alloc2d(int rows, int cols) {
+    site *data = malloc(rows*cols*sizeof(site));
+    site **array= malloc(rows*sizeof(int*));
+    for (int i=0; i<rows; i++)
+        array[i] = &(data[cols*i]);
 
-     tid = omp_get_thread_num();
-    
-     int end;
-     int start; 
-     int peiceSize;
-         
-     start = (arrPartSize *tid);
-     end   = start + arrPartSize;
-     if(tid == numThreads-1) end += leftOvers;
-     
-     peiceSize = end -start; 
-     
-     //Also Timing Each Thread 
-     struct timeval intern_start, intern_end;
-     gettimeofday(&intern_start,NULL);
-    
-     int perc  = findCluster(n ,peiceSize,   mat+start , printMat, percCond, &m[tid],  1 ,tid); 
-     gettimeofday(&intern_end, NULL);
-     double time_taken = ((intern_end.tv_sec  - intern_start.tv_sec) * 1000000u +
-		             intern_end.tv_usec - intern_start.tv_usec) / 1.e6;
+    return array;
+}
+
+
+
+int main(int argc , char* argv[]){
+	double startMPI, finish;
+		//Init MPI
+	MPI_Init(&argc , &argv );
+	
+	//Get Total Processes available to us
+	int world_size;
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+	// Get the rank of the process
+	int world_rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+	// Get the name of the processor
+    	char processor_name[MPI_MAX_PROCESSOR_NAME];
+    	int name_len;
+    	MPI_Get_processor_name(processor_name, &name_len);
+
+	//Get each part to say hello first.   
+	printf("Hello world from processor %s, rank %d"
+           " out of %d processors\n",
+           processor_name, world_rank+1, world_size);
+
+	if(argc < 3){
+		//Only one Proc Prints Error PLEASE!
+		if(world_rank == MASTER) printUsage();
+		//all exit tho
+		exit(EXIT_FAILURE);
+    	}
+	//Command Line Options
+   	int n = atoi(argv[1]);
+    	float prob =atof(argv[2]);
+       	int bPerc =0;
+    	int percCond =0;
+        int idx =3;
+	
+    	double time_taken; 
+
+   	while( idx < argc){
+		if(strncmp(argv[idx], "-v",2)==0) percCond =1;
+		if(strncmp(argv[idx], "-b",2)==0) bPerc =1; 
+			
+    	idx++;
+	}
+
+	int matPartSize = n/numProcs;	
+    	int leftOvers= n - (numProcs* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
+
+	//Create Custom Struct Data Types for Piece and Sites
+
+	//Site
+	MPI_Datatype MPI_site;
+	MPI_Datatype types[5] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
+	MPI_Aint disp[5]; //5 ints
+	//Elements per Block
+	int blckLen[5]= {1,1,1,1,1} ; //5 ints
+	disp[0] = offsetof(site , upperBond ); 
+	disp[1] = offsetof(site , lowerBond ); 
+	disp[2] = offsetof(site , rightBond ); 
+	disp[3] = offsetof(site , leftBond ); 
+	disp[4] = offsetof(site , siteBond ); 
+	
+	MPI_Type_create_struct(5, blckLen, disp, types, &MPI_site);
+	MPI_Type_commit(&MPI_site);
+
+
+	//Cluster 
+	MPI_Datatype MPI_cluster ;
+	MPI_Datatype typs[8] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
+	int blkLen[8]= {1,1,1,1,1,n,n,1} ; 
+	MPI_Aint disps[8] ;
+	disps[0] = offsetof(cluster , clusterID ); 
+	disps[1] = offsetof(cluster , parentClusID); 
+	disps[2] = offsetof(cluster , parentPieceID ); 
+	disps[3] = offsetof(cluster , clusHeight ); 
+	disps[4] = offsetof(cluster , clusWidth); 
+	disps[5] = offsetof(cluster , colsOccupied ); 
+	disps[6] = offsetof(cluster , rowsOccupied ); 
+	disps[7] = offsetof(cluster , clusSize ); 
+
+	MPI_Type_create_struct(8, blkLen, disps, typs, &MPI_cluster);
+	MPI_Type_commit(&MPI_cluster);
+
+	//Master Sets and seeds Matrix
+	if(world_rank == MASTER){		
+	
+	
+	
+
+	//Contigous to make sending a little easier
+	site **mat = alloc2d(n,n);
+
+	for(int i =0; i < n; i++){
+		for(int j =0 ; j < n ; j++){
+           		mat[i][j].upperBond = 0;
+             		mat[i][j].lowerBond = 0;
+             		mat[i][j].rightBond = 0;
+             		mat[i][j].leftBond = 0;
+             		mat[i][j].siteBond = 0;	
+		}
+   	}
+	
+	struct timeval start, end;
+     	gettimeofday(&start, NULL);
+  
+    	if(bPerc){
+ 		printf("MASTER Seeding Bond Matrix.. %d elements Please Wait \n",n*n);
+		SeedMatrixBond(mat,n,prob);
+    	}
+    	else{
+		printf("MASTER Site Matrix.. %d elements Please Wait\n" ,n*n);
+     		SeedMatrixSite(mat,n, prob); 
+    	}
+    	gettimeofday(&end, NULL);
+   	time_taken = ((end.tv_sec  - start.tv_sec) * 1000000u +
+		             end.tv_usec - start.tv_usec) / 1.e6;
  
-     printf(BLU "Time taken for Thread %d   %12.10f\n"RESET,tid,   time_taken);
+    	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
+        
+	//start timing after seeding for consistency
+        startMPI=MPI_Wtime(); /*start timer*/
 
- 
-     }
-     //All Threads Rejoined Master Here  
-     int maxCluster = 0; 
-     int maxClusterIdx =0;
+
+	//Matrix Seeded By MASTER 		
+	for(int i = 0 ; i < numProcs -1 ; i++){
+	
+		int start = matPartSize * i;
+		int end = start + matPartSize;
+     		if(i == numProcs-1) end += leftOvers;
+     		int pieceSize = end -start; 
+
+		//SEND IT..
+		if(world_size>1)// Test
+		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
+		
+	}
+
+		//Do My Bit
+		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
+		
+		size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
+  		piece *m = malloc(sizeof(piece) * numProcs);
+		for(int i = 0 ; i < numProcs; i++ ){	
+			initPiece(&m[i] , initialSize ,n);
+      		}   
+
+		//Create Master Piece and fill it up
+		
+		size_t f = sizeof(int) + sizeof(cluster) + 2*n;
+		findCluster(n , matPartSize,  mat , 0, 0, &m[0] ,0, 0);
+
+
+		//Recv Full Pieces Back - Just Recieveing Size For Now
+		for(int i = 1 ; i < numProcs -1 ; i++){
+			size_t psiz; 
+			MPI_Status status;
+			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
+			printf("Size of Piece from %d is %zu\n", i ,psiz);
+			
+		}
+
+		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
+		for(int i = 1 ; i < numProcs ;i ++){
+			printf("i:%d Bp1\n",i);
+		    copyPiece(&m[0] , &m[i] ,n);
+		}
+	
+
+		//Join Pieces-
+		
+		  
+   		int maxCluster = 0; 
+   		int maxClusterIdx =0;
     
 
      //Uhh Piece It Back Together From Bottom To Top..
@@ -649,293 +797,12 @@ int runParalell(int n, site  **mat,  int printMat, int percCond,  int numThreads
      
      printf(RED"Total Time taken in parallel %12.10f\n"RESET, total_time_taken);
 
-     return lc;
-}
 
-
-// SEQUENTIAL RUN
-int runNormal(int n, site **mat, int printMat, int percCond,piece *m){
-    
-     struct timeval start, end;
-     gettimeofday(&start,NULL);
-
-     int perc = findCluster(n , n,  mat , printMat, percCond, &m[0],0, 0); 
-
-     gettimeofday(&end, NULL);
-     double time_taken = ((end.tv_sec  - start.tv_sec) * 1000000u +
-		             end.tv_usec - start.tv_usec) / 1.e6;
- 
-     printf(RED"Time taken (Sequential)  %12.10f\n"RESET, time_taken);
-
-     int vperc =0;
-     int hperc =0;
-     int fullperc =0;
-
-     int lc =0;
-     for(int i = 0 ; i < m[0].numClusters ; i++){
-        if (m[0].pieceClusters[i].clusSize > lc)
-		lc =m[0].pieceClusters[i].clusSize ;
-
-	
-
-     	if (m[0].pieceClusters[i].clusWidth == n){
-		hperc= 1;
-		if(m[0].pieceClusters[i].clusHeight == n)
-			fullperc =1;	
-
-	}
-	
-	if( m[0].pieceClusters[i].clusHeight == n)
-		vperc =1;	      
-     }
-
-    // printf("percCond = %d hperc =%d vperc =%d fullperc= %d \n",percCond, hperc,vperc, fullperc);
-
-
-     if(!percCond){
-	if(fullperc){
-	printf(GRN "Matrix Percolates Largest CLuster is %d \n"RESET , lc); 
-	}
-     	else printf(GRN "Matrix Does Not Percolate, Largest CLuster is %d \n"RESET , lc); 	
-     }
-
-     else{
-	if(hperc || vperc){
-	printf(GRN "Matrix Percolates Largest CLuster is %d \n"RESET , lc); 
-	}
-	else printf(GRN "Matrix Does Not Percolates, Largest CLuster is %d \n"RESET , lc); 
-     }
-
-      
-     if(printMat)
-     printLargestCluster(mat,n,n,m[0].largestClusterIdx,1);
-
-    return lc;     
-}
-void printUsage(){
-		printf(BLU "Usage: ./perc {MatrixSize} {SeedingProbability} {Optional Flags}\n-p: Prints to console a visual representation of matrix- ONLY USE FOR SMALL MATRIX\n-v: Matrix only has to percolate vertically or horizontially -DEFAULT IS BOTH\n-b: Bond Percolation - DEFAULT IS SITE PERCOLATION\n-o Run with openMp\n-c Compare with regular\n"RESET );
-
-}
-
-site **alloc2d(int rows, int cols) {
-    site *data = malloc(rows*cols*sizeof(site));
-    site **array= malloc(rows*sizeof(int*));
-    for (int i=0; i<rows; i++)
-        array[i] = &(data[cols*i]);
-
-    return array;
-}
-
-void testPerc(piece *p, int world_rank ,int Width , int Height){
-
-	int vperc =0;
-   	int hperc =0;
-     	int fullperc =0;
-
-     	int lc =0;
-    	for(int i = 0 ; i < p->numClusters ; i++){
-        		if (p->pieceClusters[i].clusSize > lc)
-				lc =p->pieceClusters[i].clusSize ;
-
-	     	if (p->pieceClusters[i].clusWidth == Width){
-			hperc= 1;
-		if(p->pieceClusters[i].clusHeight == Height)
-			fullperc =1;	
-		}
-	
-		if( p->pieceClusters[i].clusHeight == Width)
-			vperc =1;	      
-    		 }
-
-		if(hperc || vperc){
-			printf(GRN "RANK:%d  Matrix Percolates Largest CLuster is %d \n"RESET ,world_rank, lc); 
-		}
-		else printf(GRN "RANK: %d Matrix Does Not Percolates, Largest CLuster is %d \n"RESET,world_rank ,
-			       	lc); 
-
-
-
-	printf(RED "RANK:%d  Width %d Height %d larestCluster is %d at largestClusterIdx %d numClusters is %d memory used in this piece is %zu allocated %zu  \n"RESET ,world_rank,Width,Height, p->largestCluster, p->largestClusterIdx, p->numClusters, p->used, p->size); 
-    		
-             // printLargestCluster(mat,Width,Height,p->.largestClusterIdx,1);
+	//Joins Finished
 
 
 
 
-}
-
-
-int main(int argc , char* argv[]){
-	double startMPI, finish;
-		//Init MPI
-	MPI_Init(&argc , &argv );
-	
-	//Get Total Processes available to us
-	int world_size;
-	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
-	// Get the rank of the process
-	int world_rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-	// Get the name of the processor
-    	char processor_name[MPI_MAX_PROCESSOR_NAME];
-    	int name_len;
-    	MPI_Get_processor_name(processor_name, &name_len);
-
-	//Get each part to say hello first.   
-	printf("Hello world from processor %s, rank %d"
-           " out of %d processors\n",
-           processor_name, world_rank+1, world_size);
-
-	if(argc < 3){
-		//Only one Proc Prints Error PLEASE!
-		if(world_rank == MASTER) printUsage();
-		//all exit tho
-		exit(EXIT_FAILURE);
-    	}
-	//Command Line Options
-   	int n = atoi(argv[1]);
-    	float prob =atof(argv[2]);
-       	int bPerc =0;
-    	int percCond =0;
-        int idx =3;
-	
-    	double time_taken; 
-
-   	while( idx < argc){
-		if(strncmp(argv[idx], "-v",2)==0) percCond =1;
-		if(strncmp(argv[idx], "-b",2)==0) bPerc =1; 
-			
-    	idx++;
-	}
-
-	int matPartSize = n/numProcs;	
-    	int leftOvers= n - (numProcs* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
-
-	//Create Custom Struct Data Types for Piece and Sites
-
-	//Site
-	MPI_Datatype MPI_site;
-	MPI_Datatype types[5] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
-	MPI_Aint disp[5]; //5 ints
-	//Elements per Block
-	int blckLen[5]= {1,1,1,1,1} ; //5 ints
-	disp[0] = offsetof(site , upperBond ); 
-	disp[1] = offsetof(site , lowerBond ); 
-	disp[2] = offsetof(site , rightBond ); 
-	disp[3] = offsetof(site , leftBond ); 
-	disp[4] = offsetof(site , siteBond ); 
-	
-	MPI_Type_create_struct(5, blckLen, disp, types, &MPI_site);
-	MPI_Type_commit(&MPI_site);
-
-
-	//Cluster 
-	MPI_Datatype MPI_cluster ;
-	MPI_Datatype typs[8] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
-	int blkLen[8]= {1,1,1,1,1,n,n,1} ; 
-	MPI_Aint disps[8] ;
-	disps[0] = offsetof(cluster , clusterID ); 
-	disps[1] = offsetof(cluster , parentClusID); 
-	disps[2] = offsetof(cluster , parentPieceID ); 
-	disps[3] = offsetof(cluster , clusHeight ); 
-	disps[4] = offsetof(cluster , clusWidth); 
-	disps[5] = offsetof(cluster , colsOccupied ); 
-	disps[6] = offsetof(cluster , rowsOccupied ); 
-	disps[7] = offsetof(cluster , clusSize ); 
-
-	MPI_Type_create_struct(8, blkLen, disps, typs, &MPI_cluster);
-	MPI_Type_commit(&MPI_cluster);
-
-	//Master Sets and seeds Matrix
-	if(world_rank == MASTER){		
-	
-	
-	
-
-	//Contigous to make sending a little easier
-	site **mat = alloc2d(n,n);
-
-	for(int i =0; i < n; i++){
-		for(int j =0 ; j < n ; j++){
-           		mat[i][j].upperBond = 0;
-             		mat[i][j].lowerBond = 0;
-             		mat[i][j].rightBond = 0;
-             		mat[i][j].leftBond = 0;
-             		mat[i][j].siteBond = 0;	
-		}
-   	}
-	
-	struct timeval start, end;
-     	gettimeofday(&start, NULL);
-  
-    	if(bPerc){
- 		printf("MASTER Seeding Bond Matrix.. %d elements Please Wait \n",n*n);
-		SeedMatrixBond(mat,n,prob);
-    	}
-    	else{
-		printf("MASTER Site Matrix.. %d elements Please Wait\n" ,n*n);
-     		SeedMatrixSite(mat,n, prob); 
-    	}
-    	gettimeofday(&end, NULL);
-   	time_taken = ((end.tv_sec  - start.tv_sec) * 1000000u +
-		             end.tv_usec - start.tv_usec) / 1.e6;
- 
-    	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
-        
-	//start timing after seeding for consistency
-        startMPI=MPI_Wtime(); /*start timer*/
-
-
-	//Matrix Seeded By MASTER 		
-	for(int i = 0 ; i < numProcs -1 ; i++){
-	
-		int start = matPartSize * i;
-		int end = start + matPartSize;
-     		if(i == numProcs-1) end += leftOvers;
-     		int pieceSize = end -start; 
-
-		//SEND IT..
-		if(world_size>1)// Test
-		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
-		
-	}
-
-		//Do My Bit
-		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
-		
-		size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
-  		piece *fullMatrix = malloc(sizeof(piece) * numProcs);
-		for(int i = 0 ; i < numProcs; i++ ){	
-			initPiece(&fullMatrix[i] , initialSize ,n);
-      		}   
-
-		//Create Master Piece and fill it up
-		
-		size_t f = sizeof(int) + sizeof(cluster) + 2*n;
-		findCluster(n , matPartSize,  mat , 0, 0, &fullMatrix[0] ,0, 0);
-
-
-		//Recv Full Pieces Back - Just Recieveing Size For Now
-		for(int i = 1 ; i < numProcs -1 ; i++){
-			size_t psiz; 
-			MPI_Status status;
-			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
-			printf("Size of Piece from %d is %zu\n", i ,psiz);
-			
-		}
-
-		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
-		for(int i = 1 ; i < numProcs ;i ++){
-			printf("i:%d Bp1\n",i);
-		    copyPiece(&fullMatrix[0] , &fullMatrix[i] ,n);
-		}
-	
-
-		//Join Pieces-
-		
-	
 
 
 
@@ -945,7 +812,7 @@ int main(int argc , char* argv[]){
 	//MASTER Starts Piece Work Once recieved all pieces
 
 	//MASTER Free Memory 
-//	free(fullMatrix);
+	free(m);
      	free(mat[0]);
      	free(mat);
    	//END OF MASTER WORK
@@ -984,8 +851,8 @@ int main(int argc , char* argv[]){
 		printf("Proc %d sent size %zu to Master \n", world_rank, psiz);
 		//now send data
 
-		//Free Piece
-	//	freePiece(&p , Width );
+
+
 		free(mat[0]);
 		free(mat);
 
