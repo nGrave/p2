@@ -862,6 +862,9 @@ int main(int argc , char* argv[]){
 	if(world_rank == MASTER){		
 
 	piece p;
+	size_t is = sizeof(int) + sizeof(cluster) + 2*n;
+	initPiece(&p, is , n  );
+
 
 	p.largestCluster = 1;
 	p.largestClusterIdx =1;
