@@ -852,13 +852,14 @@ int main(int argc , char* argv[]){
   	c.parentPieceID =0;
 	c.clusHeight =100;
 	c.clusWidth =100;
+
 	for(int i = 0; i < n; i++){
 	c.colsOccupied[i] = i*2;
 	c.rowsOccupied[i] =i *2;
 	}
 	c.clusSize = 200;
 
-	MPI_Send(&cluster, 1 , MPI_cluster,1,0, MPI_COMM_WORLD);
+	MPI_Send(&c, 1 , MPI_cluster,1,0, MPI_COMM_WORLD);
 
 	
 //	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
@@ -960,7 +961,7 @@ int main(int argc , char* argv[]){
 		MPI_Status st;		
      		//cluster test
 		cluster c;
-		MPI_Recv(&cluster, 1 , MPI_cluster, 0,0, MPI_COMM_WORLD,&st);
+		MPI_Recv(&c, 1 , MPI_cluster, 0,0, MPI_COMM_WORLD,&st);
 		
 		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",c.clusterID ,c.parentClusID,c.parentPieceID ,c.clusHeight,c.clusWidth,c.clusSize);
 		for(int i = 0; i < n; i++){
