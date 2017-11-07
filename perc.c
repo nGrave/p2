@@ -613,8 +613,8 @@ int main(int argc , char* argv[]){
     
 
      //Uhh Piece It Back Together From Bottom To Top..
-    	for(int i =numThreads-1  ; i > 0; i--){
-		int tr =   (arrPartSize * i) ;
+    	for(int i =numProcs-1  ; i > 0; i--){
+		int tr =   (matPartSize * i) ;
 	
 		for(int j = 0 ; j < n; j++){
 			int ths = (mat[tr][j].siteBond) -1;
