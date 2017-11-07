@@ -800,7 +800,7 @@ int main(int argc , char* argv[]){
 		int Width  = n; // 
 
 
-      		printf("n is %d Processor %d ready to recieve work expecting  mat[%d] to mat[%d]\n" , world_rank, start ,end );
+      		printf("n is %d Processor %d ready to recieve work expecting  mat[%d] to mat[%d]\n" ,n, world_rank, start ,end );
         
 		site **mat = alloc2d(Height,Width);
         	MPI_Status status;
