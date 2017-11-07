@@ -419,7 +419,7 @@ void growCluster(piece *m, int pceID, int clusID, int pce2ID, int clus2ID, int n
 	addCols(m, pceID, clusID, pce2ID, clus2ID , n);
 }
 
-void pieceWork( piece** m , site **mat ){
+void pieceWork( piece** m , site **mat ,int n ){
 	for(int i =numProcs-1  ; i > 0; i--){
 		int tr =   (matPartSize * i) ;
 	
@@ -793,7 +793,7 @@ int main(int argc , char* argv[]){
 	
 
 		//Join Pieces- and check Percolation
-		pieceWork(m ,mat);
+		pieceWork(m ,mat,n);
 
 	    
   
