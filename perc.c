@@ -908,7 +908,7 @@ int main(int argc , char* argv[]){
 	
 	}
 
-	if(world_rank != MASTER ){
+	if(world_rank > 12 ){
         //Allow For Leftovers -Piece n -TODO
 		int start = matPartSize * world_rank;
 		int end = start + matPartSize;
