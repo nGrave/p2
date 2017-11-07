@@ -860,11 +860,13 @@ int main(int argc , char* argv[]){
 
 	//Master Sets and seeds Matrix
 	if(world_rank == MASTER){		
+		printf(" 1 MASTER SENT Piece\n");
 
 	piece p;
 	size_t is = sizeof(int) + sizeof(cluster) + 2*n;
 	initPiece(&p, is , n  );
-
+	
+	printf(" 2 MASTER SENT Piece\n");
 
 	p.largestCluster = 1;
 	p.largestClusterIdx =1;
@@ -886,11 +888,13 @@ int main(int argc , char* argv[]){
 	}
 	c.clusSize = 200;
 
+	printf(" 3 MASTER SENT Piece\n");
 
 	p.pieceClusters[0] = c;
+	printf(" 4 MASTER SENT Piece\n");
 
 	MPI_Send(&p, 1 , MPI_Piece,1,0, MPI_COMM_WORLD);
-	printf(" 4 MASTER SENT Piece\n");
+	printf(" 5 MASTER SENT Piece\n");
 	
 	
 //	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
