@@ -844,7 +844,7 @@ int main(int argc , char* argv[]){
 	disps[3] = offsetof(piece , numClusters ); 
 	disps[4] = offsetof(piece , used); 
 	disps[5] = offsetof(piece , size ); 
-	disps[6] = offsetof(piece , piecClusters ); 
+	disps[6] = offsetof(piece , pieceClusters ); 
 	
 
 	MPI_Type_create_struct(7, blLen, dis, typ, &MPI_Piece);
@@ -884,9 +884,9 @@ int main(int argc , char* argv[]){
 	c.clusSize = 200;
 
 
-	p.pieceClusters[0] = p;
+	p.pieceClusters[0] = c;
 
-	MPI_Send(&p, 1 , MPI_piece,1,0, MPI_COMM_WORLD);
+	MPI_Send(&p, 1 , MPI_Piece,1,0, MPI_COMM_WORLD);
 	printf(" 4 MASTER SENT Piece\n");
 	
 	
@@ -989,7 +989,7 @@ int main(int argc , char* argv[]){
      		//cluster test
 		cluster c;
 		piece p; 
-		MPI_Recv(&p, 1 , MPI_piece, 0,0, MPI_COMM_WORLD,&st);
+		MPI_Recv(&p, 1 , MPI_Piece, 0,0, MPI_COMM_WORLD,&st);
 		
 		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",p.pieceClusters[0].clusterID ,p.pieceClusters[0].parentClusID,p.pieceClusters[0].parentPieceID ,
 				p.pieceClusters[0].clusHeight,p.pieceClusters[0].clusWidth,p.pieceClusters[0].clusSize);
