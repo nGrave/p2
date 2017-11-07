@@ -909,6 +909,8 @@ int main(int argc , char* argv[]){
 	
 	}
 
+
+	/*
 	if(world_rank != MASTER ){
        		int start = matPartSize * world_rank;
 		int end = start + matPartSize;
@@ -944,7 +946,7 @@ int main(int argc , char* argv[]){
 
 	}
 	
-      
+      */
 	if(world_rank ==MASTER){
 	finish=MPI_Wtime();
 	printf("Parallel Elapsed time: %f seconds\n", finish-startMPI); 
