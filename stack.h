@@ -20,7 +20,7 @@
 #define RESET "\x1B[0m"
 
 
-#define numProcs 12
+#define numProcs 24
 #define numNodes 10
 
 #define MASTER 0
