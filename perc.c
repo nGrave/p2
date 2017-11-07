@@ -700,9 +700,9 @@ int main(int argc , char* argv[]){
 		}
 		//Bottom Row Already has a parent
 		else  {
-			int parentClus = m[numThreads-1].pieceClusters[btRow].parentClusID;
-			int parentPiece = m[numThreads-1].pieceClusters[btRow].parentPieceID;
-			getRoot(m, numThreads-1, btRow, &parentPiece, &parentClus );
+			int parentClus = m[numProcs-1].pieceClusters[btRow].parentClusID;
+			int parentPiece = m[numProcs-1].pieceClusters[btRow].parentPieceID;
+			getRoot(m, numProcs-1, btRow, &parentPiece, &parentClus );
 		
 			if(m[0].pieceClusters[tpRow].parentClusID == -1 && parentClus != tpRow ){
 				growCluster(m,parentPiece,parentClus,0,tpRow,n);	
