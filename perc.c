@@ -570,7 +570,7 @@ int main(int argc , char* argv[]){
      		int pieceSize = end -start; 
 
 		//SEND IT..
-		if(world_size>1)// Test
+			
 		MPI_Send(&(mat[start][0]),n*pieceSize, MPI_site,i+1,0, MPI_COMM_WORLD);
 		
 	}
