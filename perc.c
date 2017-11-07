@@ -992,6 +992,9 @@ int main(int argc , char* argv[]){
      		//cluster test
 		cluster c;
 		piece p1; 
+		size_t k = sizeof(int) + sizeof(cluster) + 2*n;
+	        initPiece(&p1, k , n  );
+
 		MPI_Recv(&p1, 1 , MPI_Piece, 0,0, MPI_COMM_WORLD,&st);
 		
 		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",p1.pieceClusters[0].clusterID ,p1.pieceClusters[0].parentClusID,p1.pieceClusters[0].parentPieceID ,
