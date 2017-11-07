@@ -816,9 +816,7 @@ int main(int argc , char* argv[]){
 	MPI_Type_commit(&MPI_site);
 
 
-	//Piece -TODO ref https://stackoverflow.com/questions/26896686/in-mpi-in-c-how-to-create-a-struct-of-structs-and-send-it-to-multiple-process
-	
-	//Cluster
+	//Cluster 
 	MPI_Datatype MPI_cluster ;
 	MPI_Datatype typs[8] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
 	int blkLen[8]= {1,1,1,1,1,n,n,1} ; 
@@ -831,13 +829,29 @@ int main(int argc , char* argv[]){
 	disps[5] = offsetof(cluster , colsOccupied ); 
 	disps[6] = offsetof(cluster , rowsOccupied ); 
 	disps[7] = offsetof(cluster , clusSize ); 
-	printf(" 1 SEG FAULT ? CLUSTER\n");
 
 	MPI_Type_create_struct(8, blkLen, disps, typs, &MPI_cluster);
 	MPI_Type_commit(&MPI_cluster);
-	
-	printf(" 2 TestSEG FAULT ? CLUSTER\n");
 
+	//Piece
+	MPI_Datatype MPI_Piece ;
+	MPI_Datatype typ[7] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,my_MPI_SIZE_T,my_MPI_SIZE_T, MPI_cluster };
+	int blLen[7]= {1,1,1,1,1,1,MaxClustersPerPiece} ; 
+	MPI_Aint dis[7] ;
+	disps[0] = offsetof(piece , largestCluster ); 
+	disps[1] = offsetof(piece , largestClusterIdx); 
+	disps[2] = offsetof(piece , percolates ); 
+	disps[3] = offsetof(piece , numClusters ); 
+	disps[4] = offsetof(piece , used); 
+	disps[5] = offsetof(piece , size ); 
+	disps[6] = offsetof(piece , piecClusters ); 
+	
+
+	MPI_Type_create_struct(7, blLen, dis, typ, &MPI_Piece);
+	MPI_Type_commit(&MPI_Piece);
+
+	
+	
 
 
 
@@ -847,6 +861,15 @@ int main(int argc , char* argv[]){
 	//Master Sets and seeds Matrix
 	if(world_rank == MASTER){		
 
+	piece p;
+
+	p.largestCluster = 1;
+	p.largestClusterIdx =1;
+	p.percolates =1 ;
+	p.numClusters =1;
+	p.used =1;
+	p.size = 1;
+	
 	//Cluster Test
 	cluster c;
 	c.clusterID =1 ;
@@ -860,10 +883,11 @@ int main(int argc , char* argv[]){
 	}
 	c.clusSize = 200;
 
-	printf(" 3 SEG FAULT ? CLUSTER\n");
 
-	MPI_Send(&c, 1 , MPI_cluster,1,0, MPI_COMM_WORLD);
-	printf(" 4 MASTER SENT CLUSTER\n");
+	p.pieceClusters[0] = p;
+
+	MPI_Send(&p, 1 , MPI_piece,1,0, MPI_COMM_WORLD);
+	printf(" 4 MASTER SENT Piece\n");
 	
 	
 //	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
@@ -964,7 +988,8 @@ int main(int argc , char* argv[]){
 		MPI_Status st;		
      		//cluster test
 		cluster c;
-		MPI_Recv(&c, 1 , MPI_cluster, 0,0, MPI_COMM_WORLD,&st);
+		piece p; 
+		MPI_Recv(&p, 1 , MPI_piece, 0,0, MPI_COMM_WORLD,&st);
 		
 		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",c.clusterID ,c.parentClusID,c.parentPieceID ,c.clusHeight,c.clusWidth,c.clusSize);
 	

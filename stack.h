@@ -23,6 +23,7 @@
 #define numProcs 12
 #define w 1000
 #define MASTER 0
+#define MaxClustersPerPiece 5000
 
 //https://stackoverflow.com/questions/40807833/sending-size-t-type-data-with-mpi
 #if SIZE_MAX == UCHAR_MAX
@@ -71,7 +72,7 @@ typedef struct{
  int numClusters;
  size_t used;
  size_t size;
- cluster *pieceClusters;
+ cluster pieceClusters[MaxClustersPerPiece];
 } piece; 
 
 
