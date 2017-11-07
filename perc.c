@@ -738,7 +738,7 @@ int main(int argc , char* argv[]){
 		int thisC = m[numProcs -1].pieceClusters[cls].parentClusID;
 		int thisP = m[numProcs -1].pieceClusters[cls].parentPieceID;
 //		printf("This Cluster m[%d][%d] Spans The Whole Bottom Piece Finding Its Root\n", numThreads-1, cls);
-		getRoot(m, numProcss-1, cls, &thisP, &thisC);
+		getRoot(m, numProcs-1, cls, &thisP, &thisC);
 	//		printf("Its root is Cluster m[%d][%d] it size is %d and Width is %d\n",thisP,thisC,m[thisP].pieceClusters[thisC].clusSize,m[thisP].pieceClusters[thisC].clusWidth );
 
 	
