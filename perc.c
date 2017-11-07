@@ -985,7 +985,7 @@ int main(int argc , char* argv[]){
 		//now send data
 
 		//Free Piece
-		freePiece(&p , Width );
+	//	freePiece(&p , Width );
 	//	free(mat[0]);
 	//	free(mat);
 
