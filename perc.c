@@ -986,8 +986,8 @@ int main(int argc , char* argv[]){
 
 		//Free Piece
 		freePiece(&p , Width );
-		free(mat[0]);
-		free(mat);
+	//	free(mat[0]);
+	//	free(mat);
 
 	}
 	
