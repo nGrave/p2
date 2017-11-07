@@ -419,195 +419,7 @@ void growCluster(piece *m, int pceID, int clusID, int pce2ID, int clus2ID, int n
 	addCols(m, pceID, clusID, pce2ID, clus2ID , n);
 }
 
-void pieceWork( piece** m , site **mat ,int n ){
-	for(int i =numProcs-1  ; i > 0; i--){
-		int tr =   (matPartSize * i) ;
-	
-		for(int j = 0 ; j < n; j++){
-			int ths = (mat[tr][j].siteBond) -1;
-			int tht = (mat[tr -1 ][j].siteBond) -1;
-		
-			//Possible Join
-			if(ths >= 0  && tht >=0 && mat[tr][j].upperBond){ 
-			//If bottom peiceCluster has no parent
-				if(m[i].pieceClusters[ths].parentClusID == -1){
 
-					//if the above cluster doesnt have a parent 
-					if(m[i-1].pieceClusters[tht].parentClusID == -1){
-					growCluster(m,i-1,tht,i,ths,n);					
-					}
-
-					//if the above cluster does have a parent 
-					else {
-						int pClusID  =	m[i-1].pieceClusters[tht].parentClusID;
-						int pPieceID =  m[i-1].pieceClusters[tht].parentPieceID;
-
-						getRoot(m, i-1, tht, &pPieceID, &pClusID );
-						growCluster(m,pPieceID,pClusID,i,ths,n);
-					}
-				}	
-				//Bottom PieceCluster has a parent
-				else if(m[i].pieceClusters[ths].parentClusID != -1) {
-				
-					int pClusID = m[i].pieceClusters[ths].parentClusID;
-					int pPieceID = m[i].pieceClusters[ths].parentPieceID;
-					getRoot(m, i, ths ,&pPieceID, &pClusID);
-
-					//top Row has no parent
-					if(m[i-1].pieceClusters[tht].parentClusID == -1 ){
-					//If Were Not the child of the above pieceCluster
-						if(!(pClusID == tht && pPieceID == i-1)){
-							growCluster(m,pPieceID,pClusID,i-1,tht,n);
-						}
-			   		}
-				
-					//topRow Has A Parent
-					else{
-			
-					int dlt= m[i-1].pieceClusters[tht].parentClusID;
-					int dlt2 = m[i-1].pieceClusters[tht].parentPieceID;
-					getRoot(m, i-1, tht, &dlt2, &dlt );
-
-						if(!(dlt == pClusID && dlt2 == pPieceID)){
-							growCluster(m,pPieceID,pClusID,dlt2,dlt,n);						
-						}
-	
-					}
-				
-				}
-			
-			}
-
-	   }	   		
-      } 
-         
-
-      //Dealing with wrap around Seperatly
-      for(int j = 0; j < n ; j++){
-		int btRow = (mat[n-1][j].siteBond) -1;
-		int tpRow = (mat[0][j].siteBond) -1;
-	//If there is a connection
-	if( btRow >= 0 && tpRow >=0  && mat[n-1][j].lowerBond){
-		//if bottom doesnt have a parent
-		if(m[numProcs-1].pieceClusters[btRow].parentClusID == -1){ 
-
-			//Top row doesn't have a parent
-			if(m[0].pieceClusters[tpRow].parentClusID == -1 ){
-				growCluster(m,0,tpRow,numProcs-1,btRow,n);	
-			}
-
-			//Top Row has a Parent
-			else  {
-				int delt = m[0].pieceClusters[tpRow].parentClusID;
-				int delt2 = m[0].pieceClusters[tpRow].parentPieceID;
-				getRoot(m, 0, tpRow, &delt2, &delt );
-				growCluster(m,delt2,delt,numProcs-1,btRow,n);	
-
-				}
-		}
-		//Bottom Row Already has a parent
-		else  {
-			int parentClus = m[numProcs-1].pieceClusters[btRow].parentClusID;
-			int parentPiece = m[numProcs-1].pieceClusters[btRow].parentPieceID;
-			getRoot(m, numProcs-1, btRow, &parentPiece, &parentClus );
-		
-			if(m[0].pieceClusters[tpRow].parentClusID == -1 && parentClus != tpRow ){
-				growCluster(m,parentPiece,parentClus,0,tpRow,n);	
-			}	
-
-			else if(m[0].pieceClusters[tpRow].parentClusID != -1){
-				int delt = m[0].pieceClusters[tpRow].parentClusID;
-				int delt2 = m[0].pieceClusters[tpRow].parentPieceID;
-				getRoot(m, 0, tpRow, &delt2, &delt );
-
-				if(parentClus != delt ){
-					growCluster(m,delt2,delt,parentPiece,parentClus,n);
-	
-				}
-
-			}		
-
-		}
-
-	  }
-	
-		
-      }
-      int lc =0;
-      int cIndex=0;
-      int pIndex=0;
-      int vperc=0;
-      int hperc =0;
-      int fullPerc =0;
-     //Check For Percolation 
-     for(int cls =0; cls<n; cls++){
-	if(m[numProcs-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
-		int thisC = m[numProcs -1].pieceClusters[cls].parentClusID;
-		int thisP = m[numProcs -1].pieceClusters[cls].parentPieceID;
-//		printf("This Cluster m[%d][%d] Spans The Whole Bottom Piece Finding Its Root\n", numThreads-1, cls);
-		getRoot(m, numProcs-1, cls, &thisP, &thisC);
-	//		printf("Its root is Cluster m[%d][%d] it size is %d and Width is %d\n",thisP,thisC,m[thisP].pieceClusters[thisC].clusSize,m[thisP].pieceClusters[thisC].clusWidth );
-
-	
-		//if its the top piece and the clusters spans the whole piece
-		if(thisP == 0 && m[thisP].pieceClusters[thisC].clusSize > matPartSize ){
-				vperc = 1;
-			if(m[thisP].pieceClusters[thisC].clusWidth == n ){
-				fullPerc = 1;
-				//There exists a cluster which spans both axis no need to keep looking for one.
-				break;
-				
-			 }	
-			
-
-		}
-	}	
-     }	     
-
-      //Find Largest Cluster 
-      for( int pce =0 ; pce < numProcs; pce++){
-     	  for(int j = 0; j < m[pce].numClusters; j++){
-		if(m[pce].pieceClusters[j].clusSize > lc   ){
-			lc =m[pce].pieceClusters[j].clusSize ;
-			cIndex = j;
-			pIndex = pce;	
-		}
-		if(m[pce].pieceClusters[j].clusWidth == n  ){
-				hperc =1 ;			
-
-		}
-
-          }
-      }
-   
-//	printf("percCond = %d hperc =%d vperc =%d fullperc= %d width = %d\n",percCond, hperc,vperc, fullPerc,m[pIndex].pieceClusters[cIndex].clusWidth  );
-
-      if(!percCond){
-	if(fullPerc){
-	 printf(YEL "Matrix Percolates Largest CLuster is %d \n"RESET , lc); 
-	}
-	else printf(YEL "Matrix Does Not Percolates Largest CLuster is %d \n"RESET , lc); 
-
-
-      }
-         	
-      else{
-	      if(hperc || vperc){
-	 printf(YEL "Matrix Percolates Largest CLuster is %d \n"RESET , lc); 
-	}
-	else printf(YEL "Matrix Does Not Percolate Largest CLuster is %d \n"RESET , lc);
-      }
-        
-     gettimeofday(&end, NULL);
-     double total_time_taken = ((end.tv_sec  - start.tv_sec) * 1000000u +
-		             end.tv_usec - start.tv_usec) / 1.e6;
-     
-     printf(RED"Total Time taken in parallel %12.10f\n"RESET, total_time_taken);
-
-
-
-
-}
 
 void printUsage(){
 		printf(BLU "Usage: ./perc {MatrixSize} {SeedingProbability} {Optional Flags}\n-p: Prints to console a visual representation of matrix- ONLY USE FOR SMALL MATRIX\n-v: Matrix only has to percolate vertically or horizontially -DEFAULT IS BOTH\n-b: Bond Percolation - DEFAULT IS SITE PERCOLATION\n-o Run with openMp\n-c Compare with regular\n"RESET );
@@ -792,11 +604,207 @@ int main(int argc , char* argv[]){
 		}
 	
 
-		//Join Pieces- and check Percolation
-		pieceWork(m ,mat,n);
+		//Join Pieces-
+		
+		  
+   		int maxCluster = 0; 
+   		int maxClusterIdx =0;
+    
+    	for(int i =numProcs-1  ; i > 0; i--){
+		int tr =   (matPartSize * i) ;
+	
+		for(int j = 0 ; j < n; j++){
+			int ths = (mat[tr][j].siteBond) -1;
+			int tht = (mat[tr -1 ][j].siteBond) -1;
+		
+			//Possible Join
+			if(ths >= 0  && tht >=0 && mat[tr][j].upperBond){ 
+			//If bottom peiceCluster has no parent
+				if(m[i].pieceClusters[ths].parentClusID == -1){
 
-	    
-  
+					//if the above cluster doesnt have a parent 
+					if(m[i-1].pieceClusters[tht].parentClusID == -1){
+					growCluster(m,i-1,tht,i,ths,n);					
+					}
+
+					//if the above cluster does have a parent 
+					else {
+						int pClusID  =	m[i-1].pieceClusters[tht].parentClusID;
+						int pPieceID =  m[i-1].pieceClusters[tht].parentPieceID;
+
+						getRoot(m, i-1, tht, &pPieceID, &pClusID );
+						growCluster(m,pPieceID,pClusID,i,ths,n);
+					}
+				}	
+				//Bottom PieceCluster has a parent
+				else if(m[i].pieceClusters[ths].parentClusID != -1) {
+				
+					int pClusID = m[i].pieceClusters[ths].parentClusID;
+					int pPieceID = m[i].pieceClusters[ths].parentPieceID;
+					getRoot(m, i, ths ,&pPieceID, &pClusID);
+
+					//top Row has no parent
+					if(m[i-1].pieceClusters[tht].parentClusID == -1 ){
+					//If Were Not the child of the above pieceCluster
+						if(!(pClusID == tht && pPieceID == i-1)){
+							growCluster(m,pPieceID,pClusID,i-1,tht,n);
+						}
+			   		}
+				
+					//topRow Has A Parent
+					else{
+			
+					int dlt= m[i-1].pieceClusters[tht].parentClusID;
+					int dlt2 = m[i-1].pieceClusters[tht].parentPieceID;
+					getRoot(m, i-1, tht, &dlt2, &dlt );
+
+						if(!(dlt == pClusID && dlt2 == pPieceID)){
+							growCluster(m,pPieceID,pClusID,dlt2,dlt,n);						
+						}
+	
+					}
+				
+				}
+			
+			}
+
+	   }	   		
+      } 
+         
+
+      //Dealing with wrap around Seperatly
+      for(int j = 0; j < n ; j++){
+		int btRow = (mat[n-1][j].siteBond) -1;
+		int tpRow = (mat[0][j].siteBond) -1;
+	//If there is a connection
+	if( btRow >= 0 && tpRow >=0  && mat[n-1][j].lowerBond){
+		//if bottom doesnt have a parent
+		if(m[numProcs-1].pieceClusters[btRow].parentClusID == -1){ 
+
+			//Top row doesn't have a parent
+			if(m[0].pieceClusters[tpRow].parentClusID == -1 ){
+				growCluster(m,0,tpRow,numProcs-1,btRow,n);	
+			}
+
+			//Top Row has a Parent
+			else  {
+				int delt = m[0].pieceClusters[tpRow].parentClusID;
+				int delt2 = m[0].pieceClusters[tpRow].parentPieceID;
+				getRoot(m, 0, tpRow, &delt2, &delt );
+				growCluster(m,delt2,delt,numProcs-1,btRow,n);	
+
+				}
+		}
+		//Bottom Row Already has a parent
+		else  {
+			int parentClus = m[numProcs-1].pieceClusters[btRow].parentClusID;
+			int parentPiece = m[numProcs-1].pieceClusters[btRow].parentPieceID;
+			getRoot(m, numProcs-1, btRow, &parentPiece, &parentClus );
+		
+			if(m[0].pieceClusters[tpRow].parentClusID == -1 && parentClus != tpRow ){
+				growCluster(m,parentPiece,parentClus,0,tpRow,n);	
+			}	
+
+			else if(m[0].pieceClusters[tpRow].parentClusID != -1){
+				int delt = m[0].pieceClusters[tpRow].parentClusID;
+				int delt2 = m[0].pieceClusters[tpRow].parentPieceID;
+				getRoot(m, 0, tpRow, &delt2, &delt );
+
+				if(parentClus != delt ){
+					growCluster(m,delt2,delt,parentPiece,parentClus,n);
+	
+				}
+
+			}		
+
+		}
+
+	  }
+	
+		
+      }
+      int lc =0;
+      int cIndex=0;
+      int pIndex=0;
+      int vperc=0;
+      int hperc =0;
+      int fullPerc =0;
+     //Check For Percolation 
+     for(int cls =0; cls<n; cls++){
+	if(m[numProcs-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
+		int thisC = m[numProcs -1].pieceClusters[cls].parentClusID;
+		int thisP = m[numProcs -1].pieceClusters[cls].parentPieceID;
+//		printf("This Cluster m[%d][%d] Spans The Whole Bottom Piece Finding Its Root\n", numThreads-1, cls);
+		getRoot(m, numProcs-1, cls, &thisP, &thisC);
+	//		printf("Its root is Cluster m[%d][%d] it size is %d and Width is %d\n",thisP,thisC,m[thisP].pieceClusters[thisC].clusSize,m[thisP].pieceClusters[thisC].clusWidth );
+
+	
+		//if its the top piece and the clusters spans the whole piece
+		if(thisP == 0 && m[thisP].pieceClusters[thisC].clusSize > matPartSize ){
+				vperc = 1;
+			if(m[thisP].pieceClusters[thisC].clusWidth == n ){
+				fullPerc = 1;
+				//There exists a cluster which spans both axis no need to keep looking for one.
+				break;
+				
+			 }	
+			
+
+		}
+	}	
+     }	     
+
+      //Find Largest Cluster 
+      for( int pce =0 ; pce < numProcs; pce++){
+     	  for(int j = 0; j < m[pce].numClusters; j++){
+		if(m[pce].pieceClusters[j].clusSize > lc   ){
+			lc =m[pce].pieceClusters[j].clusSize ;
+			cIndex = j;
+			pIndex = pce;	
+		}
+		if(m[pce].pieceClusters[j].clusWidth == n  ){
+				hperc =1 ;			
+
+		}
+
+          }
+      }
+   
+//	printf("percCond = %d hperc =%d vperc =%d fullperc= %d width = %d\n",percCond, hperc,vperc, fullPerc,m[pIndex].pieceClusters[cIndex].clusWidth  );
+
+      if(!percCond){
+	if(fullPerc){
+	 printf(YEL "Matrix Percolates Largest CLuster is %d \n"RESET , lc); 
+	}
+	else printf(YEL "Matrix Does Not Percolates Largest CLuster is %d \n"RESET , lc); 
+
+
+      }
+         	
+      else{
+	      if(hperc || vperc){
+	 printf(YEL "Matrix Percolates Largest CLuster is %d \n"RESET , lc); 
+	}
+	else printf(YEL "Matrix Does Not Percolate Largest CLuster is %d \n"RESET , lc);
+      }
+        
+     gettimeofday(&end, NULL);
+     double total_time_taken = ((end.tv_sec  - start.tv_sec) * 1000000u +
+		             end.tv_usec - start.tv_usec) / 1.e6;
+     
+     printf(RED"Total Time taken in parallel %12.10f\n"RESET, total_time_taken);
+
+
+	//Joins Finished
+
+
+
+
+
+
+
+		//Check perc -use code from p1
+
 
 	//MASTER Starts Piece Work Once recieved all pieces
 
