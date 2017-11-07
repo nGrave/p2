@@ -734,7 +734,7 @@ int main(int argc , char* argv[]){
       int fullPerc =0;
      //Check For Percolation 
      for(int cls =0; cls<n; cls++){
-	if(m[numThreads-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
+	if(m[numProcs-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
 		int thisC = m[numThreads -1].pieceClusters[cls].parentClusID;
 		int thisP = m[numThreads -1].pieceClusters[cls].parentPieceID;
 //		printf("This Cluster m[%d][%d] Spans The Whole Bottom Piece Finding Its Root\n", numThreads-1, cls);
