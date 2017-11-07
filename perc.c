@@ -915,7 +915,7 @@ int main(int argc , char* argv[]){
 				initPiece(&fullMatrix[i] , initialSize ,n);
       		}   
 
-		*fullMatrix[0] = &p; 
+		&fullMatrix[0] = &p; 
 
 
 
