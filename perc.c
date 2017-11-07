@@ -750,7 +750,7 @@ void testPerc(piece *p, int world_rank ,int Width , int Height){
 
 
 int main(int argc , char* argv[]){
-	double start, finish;
+	double startMPI, finish;
 		//Init MPI
 	MPI_Init(&argc , &argv );
 	
@@ -860,7 +860,7 @@ int main(int argc , char* argv[]){
     	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
         
 	//start timing after seeding for consistency
-        start=MPI_Wtime(); /*start timer*/
+        startMPI=MPI_Wtime(); /*start timer*/
 
 
 	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
@@ -950,7 +950,7 @@ int main(int argc , char* argv[]){
 	//Finalize MPI
 	MPI_Finalize();
 
-	printf("Parallel Elapsed time: %f seconds\n", finish-start); 
+	printf("Parallel Elapsed time: %f seconds\n", finish-startMPI); 
 
      	return 0; 
 }
