@@ -920,8 +920,6 @@ int main(int argc , char* argv[]){
 		//Join Pieces-
 		
 	
-		&fullMatrix[0] = &p; 
-
 
 
 
