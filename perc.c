@@ -827,7 +827,7 @@ int main(int argc , char* argv[]){
 	disps[1] = offsetof(cluster , parentClusID); 
 	disps[2] = offsetof(cluster , parentPieceID ); 
 	disps[3] = offsetof(cluster , clusHeight ); 
-	disps[4] = offsetof(cluster , cluswidth); 
+	disps[4] = offsetof(cluster , clusWidth); 
 	disps[5] = offsetof(cluster , colsOccupied ); 
 	disps[6] = offsetof(cluster , rowsOccupied ); 
 	disps[7] = offsetof(cluster , clusSize ); 
@@ -847,14 +847,14 @@ int main(int argc , char* argv[]){
 
 	//Cluster Test
 	cluster c;
-	c.clusterID =1 
+	c.clusterID =1 ;
 	c.parentClusID = 0;
   	c.parentPieceID =0;
 	c.clusHeight =100;
 	c.clusWidth =100;
 	for(int i = 0; i < n; i++){
-	colsOccupied[i] = i*2;
-	rowsOccupied[i] =i *2;
+	c.colsOccupied[i] = i*2;
+	c.rowsOccupied[i] =i *2;
 	}
 	c.clusSize = 200;
 
@@ -957,10 +957,10 @@ int main(int argc , char* argv[]){
 
 	
 	if(world_rank != MASTER ){
-		
-		//cluster test
+		MPI_Status st;		
+     		//cluster test
 		cluster c;
-		MPI_Recv(&cluster, 1 , MPI_cluster, 0,0, MPI_COMM_WORLD,&status);
+		MPI_Recv(&cluster, 1 , MPI_cluster, 0,0, MPI_COMM_WORLD,&st);
 		
 		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",c.clusterID ,c.parentClusID,c.parentPieceID ,c.clusHeight,c.clusWidth,c.clusSize);
 		for(int i = 0; i < n; i++){
