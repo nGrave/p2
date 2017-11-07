@@ -817,13 +817,48 @@ int main(int argc , char* argv[]){
 
 
 	//Piece -TODO ref https://stackoverflow.com/questions/26896686/in-mpi-in-c-how-to-create-a-struct-of-structs-and-send-it-to-multiple-process
-	//
-//	MPI_Datatype MPI_cluster ;
-//	MPI_Datatype types[] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
+	
+	//Cluster
+	MPI_Datatype MPI_cluster ;
+	MPI_Datatype typs[8] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
+	int blkLen[5]= {1,1,1,1,1,n,n,1} ; 
+	MPI_Aint disps[8] ;
+	disps[0] = offsetof(cluster , clusterID ); 
+	disps[1] = offsetof(cluster , parentClusID); 
+	disps[2] = offsetof(cluster , parentPieceID ); 
+	disps[3] = offsetof(cluster , clusHeight ); 
+	disps[4] = offsetof(cluster , cluswidth); 
+	disps[5] = offsetof(cluster , colsOccupied ); 
+	disps[6] = offsetof(cluster , rowsOccupied ); 
+	disps[7] = offsetof(cluster , clusSize ); 
+
+	MPI_Type_create_struct(8, blkLen, disps, typs, &MPI_cluster);
+	MPI_Type_commit(&MPI_site);
+
+	
+
+
+
+
 
 
 	//Master Sets and seeds Matrix
 	if(world_rank == MASTER){		
+
+	//Cluster Test
+	cluster c;
+	c.clusterID =1 
+	c.parentClusID = 0;
+  	c.parentPieceID =0;
+	c.clusHeight =100;
+	c.clusWidth =100;
+	for(int i = 0; i < n; i++){
+	colsOccupied[i] = i*2;
+	rowsOccupied[i] =i *2;
+	}
+	c.clusSize = 200;
+
+	MPI_Send(&cluster, 1 , MPI_cluster,1,0, MPI_COMM_WORLD);
 
 	
 //	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
@@ -866,8 +901,7 @@ int main(int argc , char* argv[]){
         startMPI=MPI_Wtime(); /*start timer*/
 
 
-	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
-		
+	//Matrix Seeded By MASTER 		
 	for(int i = 0 ; i < numProcs -1 ; i++){
 	
 		int start = matPartSize * i;
@@ -891,16 +925,18 @@ int main(int argc , char* argv[]){
 		findCluster(n , matPartSize,  mat , 0, 0, &p ,0, 0); 
 		testPerc(&p, world_rank , n, matPartSize);
 
-	for(int i = 1 ; i < numProcs -1 ; i++){
-		size_t psiz; 
-		MPI_Status status;
-		MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
-		printf("Size of Piece from %d is %zu\n", i ,psiz);
-	}
+	
+	
 
+		//Recv Full Pieces Back -
+		for(int i = 1 ; i < numProcs -1 ; i++){
+			size_t psiz; 
+			MPI_Status status;
+			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
+			printf("Size of Piece from %d is %zu\n", i ,psiz);
+			MPI_Recv(&psiz,1, MPI_Byte,i,i, MPI_COMM_WORLD, &status);
 
-		//Recv Full Pieces Back --Can't IMPLEMENT untill sort out custom DataType
-
+		}	
 
 		//Join Pieces-use code from p1 run paralell
 		
@@ -921,6 +957,17 @@ int main(int argc , char* argv[]){
 
 	
 	if(world_rank != MASTER ){
+		
+		//cluster test
+		cluster c;
+		MPI_Recv(&cluster, 1 , MPI_cluster, 0,0, MPI_COMM_WORLD,&status);
+		
+		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",c.clusterID ,c.parentClusID,c.parentPieceID ,c.clusHeight,c.clusWidth,c.clusSize);
+		for(int i = 0; i < n; i++){
+		printf("colsOcc[%d] = %d rowsOccuied[%d] = %d \n",i,	c.colsOccupied[i] ,i,c.rowsOccupied[i] );
+		}
+	
+
        		int start = matPartSize * world_rank;
 		int end = start + matPartSize;
      		if(world_rank == numProcs-1) end += leftOvers;
@@ -934,9 +981,6 @@ int main(int argc , char* argv[]){
 		int numberOfSitesRead;
 		MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
 		MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
-	//	printf("	TEST : Proc %d Responding\n" ,world_rank); 
-	//	printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank ,
-	//		       	numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
 		piece p;
 		size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
@@ -945,10 +989,9 @@ int main(int argc , char* argv[]){
 		findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
 		testPerc(&p, world_rank,Width,Height );
 
-    		 //end test
-	  	//SEND PIECE BACK HERE
+    	  	//SEND PIECE BACK HERE
 		
-		size_t psiz = p.used;
+		size_t psiz = p.size;
 		MPI_Send(&psiz,1, my_MPI_SIZE_T,0,world_rank, MPI_COMM_WORLD);
 		printf("Proc %d sent size %zu to piece \n", world_rank, psiz);
 		//now send data
