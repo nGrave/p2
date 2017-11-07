@@ -483,8 +483,9 @@ int main(int argc , char* argv[]){
 	}
 
 	int matPartSize = n/numProcs;	
-    	int leftOvers= n - (numProcs* matPartSize); //TODO- Split leftovers evenly REF- Prof. Datta Lec 27sept
+    	int leftOvers= n - (numProcs* matPartSize); 
 
+	printf(GRN"matPartSize = %d , Lo = %d\n" RESET , matPartSize, leftOvers); 
 	//Create Custom Struct Data Types for Piece and Sites
 
 	//Site
