@@ -735,10 +735,10 @@ int main(int argc , char* argv[]){
      //Check For Percolation 
      for(int cls =0; cls<n; cls++){
 	if(m[numProcs-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
-		int thisC = m[numThreads -1].pieceClusters[cls].parentClusID;
-		int thisP = m[numThreads -1].pieceClusters[cls].parentPieceID;
+		int thisC = m[numProcs -1].pieceClusters[cls].parentClusID;
+		int thisP = m[numProcs -1].pieceClusters[cls].parentPieceID;
 //		printf("This Cluster m[%d][%d] Spans The Whole Bottom Piece Finding Its Root\n", numThreads-1, cls);
-		getRoot(m, numThreads-1, cls, &thisP, &thisC);
+		getRoot(m, numProcss-1, cls, &thisP, &thisC);
 	//		printf("Its root is Cluster m[%d][%d] it size is %d and Width is %d\n",thisP,thisC,m[thisP].pieceClusters[thisC].clusSize,m[thisP].pieceClusters[thisC].clusWidth );
 
 	
