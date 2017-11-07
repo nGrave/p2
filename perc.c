@@ -833,75 +833,11 @@ int main(int argc , char* argv[]){
 	MPI_Type_create_struct(8, blkLen, disps, typs, &MPI_cluster);
 	MPI_Type_commit(&MPI_cluster);
 
-	//Piece
-	MPI_Datatype MPI_Piece ;
-	MPI_Datatype typ[7] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,my_MPI_SIZE_T,my_MPI_SIZE_T, MPI_cluster };
-	int blLen[7]= {1,1,1,1,1,1,MaxClustersPerPiece} ; 
-	MPI_Aint dis[7] ;
-	disps[0] = offsetof(piece , largestCluster ); 
-	disps[1] = offsetof(piece , largestClusterIdx); 
-	disps[2] = offsetof(piece , percolates ); 
-	disps[3] = offsetof(piece , numClusters ); 
-	disps[4] = offsetof(piece , used); 
-	disps[5] = offsetof(piece , size ); 
-	disps[6] = offsetof(piece , pieceClusters ); 
-	
-
-	MPI_Type_create_struct(7, blLen, dis, typ, &MPI_Piece);
-	MPI_Type_commit(&MPI_Piece);
-
-	
-	
-
-
-
-
-
-
 	//Master Sets and seeds Matrix
 	if(world_rank == MASTER){		
-		printf(" 1 MASTER SENT Piece\n");
-
-	piece p;
-	size_t is = sizeof(int) + sizeof(cluster) + 2*n;
-	initPiece(&p, is , n  );
-	
-	printf(" 2 MASTER SENT Piece\n");
-
-	p.largestCluster = 1;
-	p.largestClusterIdx =1;
-	p.percolates =1 ;
-	p.numClusters =1;
-	p.used =1;
-	p.size = 1;
-	
-	//Cluster Test
-	cluster c;
-	c.clusterID =1 ;
-	c.parentClusID = 0;
-  	c.parentPieceID =0;
-	c.clusHeight =100;
-	c.clusWidth =100;
-	for(int i = 0; i < n; i++){
-	c.colsOccupied[i] = i*2;
-	c.rowsOccupied[i] =i *2;
-	}
-	c.clusSize = 200;
-
-	printf(" 3 MASTER SENT Piece\n");
-
-	p.pieceClusters[0] = c;
-	printf(" 4 MASTER SENT Piece\n");
-
-	MPI_Send(&p, 1 , MPI_Piece,1,0, MPI_COMM_WORLD);
-	printf(" 5 MASTER SENT Piece\n");
 	
 	
-//	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
-   // 	piece *fullMatrix = malloc(sizeof(piece) * numProcs);
-//	for(int i = 0 ; i < numProcs; i++ ){	
-//		initPiece(&fullMatrix[i] , initialSize ,n);
-//       }   
+	
 
 	//Contigous to make sending a little easier
 	site **mat = alloc2d(n,n);
@@ -954,17 +890,15 @@ int main(int argc , char* argv[]){
 		//Do My Bit
 		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
 
-		piece p2;
+		//Create Master Piece and fill it up
+		piece p;
 		size_t f = sizeof(int) + sizeof(cluster) + 2*n;
-		initPiece(&p2, f , n );
-		
+		initPiece(&p, f , n );
 		findCluster(n , matPartSize,  mat , 0, 0, &p ,0, 0); 
-		testPerc(&p2, world_rank , n, matPartSize);
-
 	
 	
 
-		//Recv Full Pieces Back -
+		//Recv Full Pieces Back - Just Recieveing Size For Now
 		for(int i = 1 ; i < numProcs -1 ; i++){
 			size_t psiz; 
 			MPI_Status status;
@@ -973,8 +907,18 @@ int main(int argc , char* argv[]){
 			
 		}	
 
-		//Join Pieces-use code from p1 run paralell
+		//Join Pieces-
 		
+		size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
+  		piece *fullMatrix = malloc(sizeof(piece) * numProcs);
+		for(int i = 0 ; i < numProcs; i++ ){	
+				initPiece(&fullMatrix[i] , initialSize ,n);
+      		}   
+
+		*fullMatrix[0] = &p; 
+
+
+
 
 		//Check perc -use code from p1
 
@@ -992,20 +936,7 @@ int main(int argc , char* argv[]){
 
 	
 	if(world_rank != MASTER ){
-		MPI_Status st;		
-     		//cluster test
-		cluster c;
-		piece p1; 
-		size_t k = sizeof(int) + sizeof(cluster) + 2*n;
-	        initPiece(&p1, k , n  );
-
-		MPI_Recv(&p1, 1 , MPI_Piece, 0,0, MPI_COMM_WORLD,&st);
-		
-		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",p1.pieceClusters[0].clusterID ,p1.pieceClusters[0].parentClusID,p1.pieceClusters[0].parentPieceID ,
-				p1.pieceClusters[0].clusHeight,p1.pieceClusters[0].clusWidth,p1.pieceClusters[0].clusSize);
-	
-		
-
+				
        		int start = matPartSize * world_rank;
 		int end = start + matPartSize;
      		if(world_rank == numProcs-1) end += leftOvers;
@@ -1020,21 +951,21 @@ int main(int argc , char* argv[]){
 		MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
 		MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
 
+		//Create A Piece Fill It with Info Needed for master
 		piece p;
 		size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
 		initPiece(&p, is , Width );
-
 		findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
-		testPerc(&p, world_rank,Width,Height );
+		printf("Part %d Found All Clusters in My Piece\n",world_rank);
 
-    	  	//SEND PIECE BACK HERE
+    	  	//SEND PIECE BACK HERE --Just Sending Size for simulation Purposes
 		
 		size_t psiz = p.size;
 		MPI_Send(&psiz,1, my_MPI_SIZE_T,0,world_rank, MPI_COMM_WORLD);
 		printf("Proc %d sent size %zu to piece \n", world_rank, psiz);
 		//now send data
 
-		
+		//Free Piece
 		freePiece(&p , Width );
 		free(mat[0]);
 		free(mat);
