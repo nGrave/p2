@@ -821,7 +821,7 @@ int main(int argc , char* argv[]){
 	//Cluster
 	MPI_Datatype MPI_cluster ;
 	MPI_Datatype typs[8] = {MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT,MPI_INT};
-	int blkLen[5]= {1,1,1,1,1,n,n,1} ; 
+	int blkLen[8]= {1,1,1,1,1,n,n,1} ; 
 	MPI_Aint disps[8] ;
 	disps[0] = offsetof(cluster , clusterID ); 
 	disps[1] = offsetof(cluster , parentClusID); 
