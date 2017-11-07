@@ -686,7 +686,7 @@ int main(int argc , char* argv[]){
 
 			//Top row doesn't have a parent
 			if(m[0].pieceClusters[tpRow].parentClusID == -1 ){
-				growCluster(m,0,tpRow,numThreads-1,btRow,n);	
+				growCluster(m,0,tpRow,numProcs-1,btRow,n);	
 			}
 
 			//Top Row has a Parent
@@ -694,7 +694,7 @@ int main(int argc , char* argv[]){
 				int delt = m[0].pieceClusters[tpRow].parentClusID;
 				int delt2 = m[0].pieceClusters[tpRow].parentPieceID;
 				getRoot(m, 0, tpRow, &delt2, &delt );
-				growCluster(m,delt2,delt,numThreads-1,btRow,n);	
+				growCluster(m,delt2,delt,numProcs-1,btRow,n);	
 
 				}
 		}
@@ -743,7 +743,7 @@ int main(int argc , char* argv[]){
 
 	
 		//if its the top piece and the clusters spans the whole piece
-		if(thisP == 0 && m[thisP].pieceClusters[thisC].clusSize > arrPartSize ){
+		if(thisP == 0 && m[thisP].pieceClusters[thisC].clusSize > matPartSize ){
 				vperc = 1;
 			if(m[thisP].pieceClusters[thisC].clusWidth == n ){
 				fullPerc = 1;
