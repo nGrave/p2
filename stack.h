@@ -20,8 +20,8 @@
 #define RESET "\x1B[0m"
 
 
-#define numProcs 12
-#define w 1000
+#define numProcs 25*6
+#define w 5000
 #define MASTER 0
 #define MaxClustersPerPiece 5000
 
