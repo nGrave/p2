@@ -190,8 +190,8 @@ void insertCluster(piece *p, int width,  cluster c) {
 }
 void initCluster(cluster *c, int width){
   
-    c->colsOccupied = malloc(sizeof(int) * width) ;
-    c->rowsOccupied = malloc(sizeof(int) * width) ;
+    //c->colsOccupied = malloc(sizeof(int) * width) ;
+   // c->rowsOccupied = malloc(sizeof(int) * width) ;
  
     for(int i = 0 ; i < width; i++){
 	c->colsOccupied[i]=0;
