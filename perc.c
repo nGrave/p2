@@ -576,7 +576,7 @@ int main(int argc , char* argv[]){
 	}
 
 		//Do My Bit
-		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
+	//	printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
 		
 		size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
   		piece *m = malloc(sizeof(piece) * world_size);
@@ -588,14 +588,13 @@ int main(int argc , char* argv[]){
 		
 		size_t f = sizeof(int) + sizeof(cluster) + 2*n;
 		findCluster(n , matPartSize,  mat , 0, 0, &m[0] ,0, 0);
-                printf("Found my Bits MASTER\n");
-
+               
 		//Recv Full Pieces Back - Just Recieveing Size For Now
 		for(int i = 0 ; i < world_size -1 ; i++){
 			size_t psiz; 
 			MPI_Status status;
 			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i+1,i+1, MPI_COMM_WORLD, &status);
-			printf("Size of Piece from %d is %zu\n", i ,psiz);
+		//	printf("Size of Piece from %d is %zu\n", i ,psiz);
 			
 		}
 		printf("Done recieveing MASTER\n");
@@ -801,10 +800,10 @@ int main(int argc , char* argv[]){
      		if(world_rank == world_size-1) end += leftOvers;
      		int Height = end -start; 
 		int Width  = n; // 
-		printf(RED "RANK:%d leftovers =%d start %d matps = %d , end %d height%d width %d \n" RESET, world_rank, leftOvers ,start, matPartSize, end,Height,Width  );
+	//	printf(RED "RANK:%d leftovers =%d start %d matps = %d , end %d height%d width %d \n" RESET, world_rank, leftOvers ,start, matPartSize, end,Height,Width  );
 
 
-      		printf("n is %d Processor %d ready to recieve work expecting  mat[%d] to mat[%d]\n" ,n, world_rank, start ,end );
+      	//	printf("n is %d Processor %d ready to recieve work expecting  mat[%d] to mat[%d]\n" ,n, world_rank, start ,end );
         
 		site **mat = alloc2d(Height,Width);
         	MPI_Status status;
@@ -817,7 +816,7 @@ int main(int argc , char* argv[]){
 		size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
 		initPiece(&p, is , Width );
 		findCluster(Width , Height,  mat , 0, 0, &p ,0, 0); 
-		printf("Part %d Found All Clusters in My Piece\n",world_rank);
+	//	printf("Part %d Found All Clusters in My Piece\n",world_rank);
 
     	  	//SEND PIECE BACK HERE --Just Sending Size for simulation Purposes
 		
