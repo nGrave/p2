@@ -889,14 +889,18 @@ int main(int argc , char* argv[]){
 
 		//Do My Bit
 		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
+		
+		size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
+  		piece *fullMatrix = malloc(sizeof(piece) * numProcs);
+		for(int i = 0 ; i < numProcs; i++ ){	
+			initPiece(&fullMatrix[i] , initialSize ,n);
+      		}   
 
 		//Create Master Piece and fill it up
-		piece p;
+		
 		size_t f = sizeof(int) + sizeof(cluster) + 2*n;
-		initPiece(&p, f , n );
-		findCluster(n , matPartSize,  mat , 0, 0, &p ,0, 0); 
-	
-	
+		findCluster(n , matPartSize,  mat , 0, 0, &fullMatrix[0] ,0, 0);
+
 
 		//Recv Full Pieces Back - Just Recieveing Size For Now
 		for(int i = 1 ; i < numProcs -1 ; i++){
@@ -905,16 +909,17 @@ int main(int argc , char* argv[]){
 			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
 			printf("Size of Piece from %d is %zu\n", i ,psiz);
 			
-		}	
+		}
+
+		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
+		for(int i = 1 ; i < numProcs ;i ++){
+			fullMatrix[i] = &fullMatrix[0];
+		}
+	
 
 		//Join Pieces-
 		
-		size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
-  		piece *fullMatrix = malloc(sizeof(piece) * numProcs);
-		for(int i = 0 ; i < numProcs; i++ ){	
-				initPiece(&fullMatrix[i] , initialSize ,n);
-      		}   
-
+	
 		&fullMatrix[0] = &p; 
 
 
