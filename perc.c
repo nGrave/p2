@@ -588,7 +588,7 @@ int main(int argc , char* argv[]){
 		
 		size_t f = sizeof(int) + sizeof(cluster) + 2*n;
 		findCluster(n , matPartSize,  mat , 0, 0, &m[0] ,0, 0);
-
+                printf("Found my Bits MASTER\n");
 
 		//Recv Full Pieces Back - Just Recieveing Size For Now
 		for(int i = 1 ; i < numProcs -1 ; i++){
@@ -598,12 +598,14 @@ int main(int argc , char* argv[]){
 			printf("Size of Piece from %d is %zu\n", i ,psiz);
 			
 		}
+		printf("Done recieveing MASTER\n");
 
 		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
 		for(int i = 1 ; i < numProcs ;i ++){		
     			copyPiece(&m[0] , &m[i] ,n);
 		}
 	
+		printf("Done copying MASTER\n");
 
 		//Join Pieces-
 		
