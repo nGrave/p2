@@ -831,11 +831,13 @@ int main(int argc , char* argv[]){
 	disps[5] = offsetof(cluster , colsOccupied ); 
 	disps[6] = offsetof(cluster , rowsOccupied ); 
 	disps[7] = offsetof(cluster , clusSize ); 
+	printf(" 1 SEG FAULT ? CLUSTER\n");
 
 	MPI_Type_create_struct(8, blkLen, disps, typs, &MPI_cluster);
 	MPI_Type_commit(&MPI_cluster);
-
 	
+	printf(" 2 TestSEG FAULT ? CLUSTER\n");
+
 
 
 
@@ -859,10 +861,10 @@ int main(int argc , char* argv[]){
 	}
 	c.clusSize = 200;
 
-	printf("SEG FAULT ? CLUSTER\n");
+	printf(" 3 SEG FAULT ? CLUSTER\n");
 
 	MPI_Send(&c, 1 , MPI_cluster,1,0, MPI_COMM_WORLD);
-	printf("MASTER SENT CLUSTER\n");
+	printf(" 4 MASTER SENT CLUSTER\n");
 	
 	
 //	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
