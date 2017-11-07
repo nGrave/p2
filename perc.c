@@ -758,7 +758,7 @@ int main(int argc , char* argv[]){
      }	     
 
       //Find Largest Cluster 
-      for( int pce =0 ; pce < numThreads; pce++){
+      for( int pce =0 ; pce < numProcs; pce++){
      	  for(int j = 0; j < m[pce].numClusters; j++){
 		if(m[pce].pieceClusters[j].clusSize > lc   ){
 			lc =m[pce].pieceClusters[j].clusSize ;
