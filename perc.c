@@ -482,8 +482,8 @@ int main(int argc , char* argv[]){
     	idx++;
 	}
 
-	int matPartSize = n/numProcs;	
-    	int leftOvers= n - (numProcs* matPartSize); 
+	int matPartSize = n/world_size;	
+    	int leftOvers= n - (world_size* matPartSize); 
 
 	printf(GRN"matPartSize = %d , Lo = %d\n" RESET , matPartSize, leftOvers); 
 	//Create Custom Struct Data Types for Piece and Sites
@@ -562,11 +562,11 @@ int main(int argc , char* argv[]){
 
 
 	//Matrix Seeded By MASTER 		
-	for(int i = 0 ; i < numProcs -1 ; i++){
+	for(int i = 0 ; i < world_size -1 ; i++){
 	
 		int start = matPartSize * i;
 		int end = start + matPartSize;
-     		if(i == numProcs-1) end += leftOvers;
+     		if(i == world_size-1) end += leftOvers;
      		int pieceSize = end -start; 
 
 		//SEND IT..
@@ -579,8 +579,8 @@ int main(int argc , char* argv[]){
 		printf("MASTER %d Starting work on mat[%d] to mat[%d]\n" , world_rank, 0 ,matPartSize );
 		
 		size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
-  		piece *m = malloc(sizeof(piece) * numProcs);
-		for(int i = 0 ; i < numProcs; i++ ){	
+  		piece *m = malloc(sizeof(piece) * world_size);
+		for(int i = 0 ; i < world_size; i++ ){	
 			initPiece(&m[i] , initialSize ,n);
       		}   
 
@@ -591,7 +591,7 @@ int main(int argc , char* argv[]){
                 printf("Found my Bits MASTER\n");
 
 		//Recv Full Pieces Back - Just Recieveing Size For Now
-		for(int i = 0 ; i < numProcs -1 ; i++){
+		for(int i = 0 ; i < world_size -1 ; i++){
 			size_t psiz; 
 			MPI_Status status;
 			MPI_Recv(&psiz,1, my_MPI_SIZE_T,i+1,i+1, MPI_COMM_WORLD, &status);
@@ -601,7 +601,7 @@ int main(int argc , char* argv[]){
 		printf("Done recieveing MASTER\n");
 
 		//Simulate Recieving Pieces Back (As coudnt Get custom Data Type Working as intended)
-		for(int i = 1 ; i < numProcs ;i ++){		
+		for(int i = 1 ; i < world_size ;i ++){		
     			copyPiece(&m[0] , &m[i] ,n);
 		}
 	
@@ -613,7 +613,7 @@ int main(int argc , char* argv[]){
    		int maxCluster = 0; 
    		int maxClusterIdx =0;
     
-    		for(int i =numProcs-1  ; i > 0; i--){
+    		for(int i =world_size-1  ; i > 0; i--){
 			int tr =   (matPartSize * i) ;
 	
 			for(int j = 0 ; j < n; j++){
@@ -682,11 +682,11 @@ int main(int argc , char* argv[]){
 		//If there is a connection
 		if( btRow >= 0 && tpRow >=0  && mat[n-1][j].lowerBond){
 		//if bottom doesnt have a parent
-			if(m[numProcs-1].pieceClusters[btRow].parentClusID == -1){ 
+			if(m[world_size-1].pieceClusters[btRow].parentClusID == -1){ 
 
 				//Top row doesn't have a parent
 				if(m[0].pieceClusters[tpRow].parentClusID == -1 ){
-					growCluster(m,0,tpRow,numProcs-1,btRow,n);	
+					growCluster(m,0,tpRow,world_size-1,btRow,n);	
 				}
 
 				//Top Row has a Parent
@@ -694,15 +694,15 @@ int main(int argc , char* argv[]){
 				int delt = m[0].pieceClusters[tpRow].parentClusID;
 				int delt2 = m[0].pieceClusters[tpRow].parentPieceID;
 				getRoot(m, 0, tpRow, &delt2, &delt );
-				growCluster(m,delt2,delt,numProcs-1,btRow,n);	
+				growCluster(m,delt2,delt,world_size-1,btRow,n);	
 
 				}
 			}
 			//Bottom Row Already has a parent
 			else  {
-			int parentClus = m[numProcs-1].pieceClusters[btRow].parentClusID;
-			int parentPiece = m[numProcs-1].pieceClusters[btRow].parentPieceID;
-			getRoot(m, numProcs-1, btRow, &parentPiece, &parentClus );
+			int parentClus = m[world_size-1].pieceClusters[btRow].parentClusID;
+			int parentPiece = m[world_size-1].pieceClusters[btRow].parentPieceID;
+			getRoot(m, world_size-1, btRow, &parentPiece, &parentClus );
 		
 				if(m[0].pieceClusters[tpRow].parentClusID == -1 && parentClus != tpRow ){
 					growCluster(m,parentPiece,parentClus,0,tpRow,n);	
@@ -731,10 +731,10 @@ int main(int argc , char* argv[]){
       	int fullPerc =0;
      	//Check For Percolation 
      	for(int cls =0; cls<n; cls++){
-		if(m[numProcs-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
-			int thisC = m[numProcs -1].pieceClusters[cls].parentClusID;
-			int thisP = m[numProcs -1].pieceClusters[cls].parentPieceID;
-			getRoot(m, numProcs-1, cls, &thisP, &thisC);
+		if(m[world_size-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
+			int thisC = m[world_size -1].pieceClusters[cls].parentClusID;
+			int thisP = m[world_size -1].pieceClusters[cls].parentPieceID;
+			getRoot(m, world_size-1, cls, &thisP, &thisC);
 
 			if(thisP == 0 && m[thisP].pieceClusters[thisC].clusSize > matPartSize ){
 				vperc = 1;
@@ -750,7 +750,7 @@ int main(int argc , char* argv[]){
     	 }	     
 
       	//Find Largest Cluster 
-     	for( int pce =0 ; pce < numProcs; pce++){
+     	for( int pce =0 ; pce < world_size; pce++){
      	  	for(int j = 0; j < m[pce].numClusters; j++){
 			if(m[pce].pieceClusters[j].clusSize > lc   ){
 				lc =m[pce].pieceClusters[j].clusSize ;
@@ -798,7 +798,7 @@ int main(int argc , char* argv[]){
 				
        		int start = matPartSize * world_rank;
 		int end = start + matPartSize;
-     		if(world_rank == numProcs-1) end += leftOvers;
+     		if(world_rank == world_size-1) end += leftOvers;
      		int Height = end -start; 
 		int Width  = n; // 
 		printf(RED "RANK:%d leftovers =%d start %d matps = %d , end %d height%d width %d \n" RESET, world_rank, leftOvers ,start, matPartSize, end,Height,Width  );
