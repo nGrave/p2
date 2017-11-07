@@ -21,7 +21,7 @@
 
 
 #define numProcs 12
-
+#define w 1000
 #define MASTER 0
 
 //https://stackoverflow.com/questions/40807833/sending-size-t-type-data-with-mpi
@@ -51,8 +51,8 @@ typedef struct {
   	int parentPieceID;
 	int clusHeight;
 	int clusWidth;
-	int *colsOccupied;
-	int *rowsOccupied;
+	int colsOccupied[w];
+	int rowsOccupied[w];
 	int clusSize;
 
 } cluster;

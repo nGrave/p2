@@ -854,8 +854,6 @@ int main(int argc , char* argv[]){
   	c.parentPieceID =0;
 	c.clusHeight =100;
 	c.clusWidth =100;
-	c.colsOccupied= malloc(sizeof(int) * n);
-	c.rowsOccupied = malloc(sizeof(int) * n);
 	for(int i = 0; i < n; i++){
 	c.colsOccupied[i] = i*2;
 	c.rowsOccupied[i] =i *2;
@@ -966,11 +964,11 @@ int main(int argc , char* argv[]){
 		MPI_Status st;		
      		//cluster test
 		cluster c;
-		c.rowsOccupied =malloc(sizeof(int) *n);
-		c.colsOccupied =malloc(sizeof(int) *n);
 		MPI_Recv(&c, 1 , MPI_cluster, 0,0, MPI_COMM_WORLD,&st);
 		
 		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",c.clusterID ,c.parentClusID,c.parentPieceID ,c.clusHeight,c.clusWidth,c.clusSize);
+	
+	
 		for(int i = 0; i < n; i++){
 		printf("colsOcc[%d] = %d rowsOccuied[%d] = %d \n",i,	c.colsOccupied[i] ,i,c.rowsOccupied[i] );
 		}
