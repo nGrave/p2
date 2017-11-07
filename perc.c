@@ -833,7 +833,7 @@ int main(int argc , char* argv[]){
 	disps[7] = offsetof(cluster , clusSize ); 
 
 	MPI_Type_create_struct(8, blkLen, disps, typs, &MPI_cluster);
-	MPI_Type_commit(&MPI_site);
+	MPI_Type_commit(&MPI_cluster);
 
 	
 
@@ -859,8 +859,11 @@ int main(int argc , char* argv[]){
 	}
 	c.clusSize = 200;
 
-	MPI_Send(&c, 1 , MPI_cluster,1,0, MPI_COMM_WORLD);
+	printf("SEG FAULT ? CLUSTER\n");
 
+	MPI_Send(&c, 1 , MPI_cluster,1,0, MPI_COMM_WORLD);
+	printf("MASTER SENT CLUSTER\n");
+	
 	
 //	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
    // 	piece *fullMatrix = malloc(sizeof(piece) * numProcs);
