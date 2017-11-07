@@ -750,7 +750,8 @@ void testPerc(piece *p, int world_rank ,int Width , int Height){
 
 
 int main(int argc , char* argv[]){
-
+	double start, finish;
+	start=MPI_Wtime(); /*start timer*/
 	//Init MPI
 	MPI_Init(&argc , &argv );
 	
@@ -823,11 +824,11 @@ int main(int argc , char* argv[]){
 	if(world_rank == MASTER){		
 
 	
-	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
-    	piece *fullMatrix = malloc(sizeof(piece) * numProcs);
-	for(int i = 0 ; i < numProcs; i++ ){	
-		initPiece(&fullMatrix[i] , initialSize ,n);
-       }   
+//	size_t initialSize = sizeof(int) + sizeof(cluster) + 2*n;
+   // 	piece *fullMatrix = malloc(sizeof(piece) * numProcs);
+//	for(int i = 0 ; i < numProcs; i++ ){	
+//		initPiece(&fullMatrix[i] , initialSize ,n);
+//       }   
 
 	//Contigous to make sending a little easier
 	site ** mat = alloc2d(n,n);
@@ -899,7 +900,7 @@ int main(int argc , char* argv[]){
 	//MASTER Starts Piece Work Once recieved all pieces
 
 	//MASTER Free Memory 
-	free(fullMatrix);
+//	free(fullMatrix);
      	free(mat[0]);
      	free(mat);
    	//END OF MASTER WORK
@@ -922,9 +923,9 @@ int main(int argc , char* argv[]){
 		int numberOfSitesRead;
 		MPI_Recv(&(mat[0][0]),Height*Width , MPI_site, 0,0, MPI_COMM_WORLD,&status);
 		MPI_Get_count(&status, MPI_site, &numberOfSitesRead);
-		printf("	TEST : Proc %d Responding\n" ,world_rank); 
-		printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank ,
-			       	numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
+	//	printf("	TEST : Proc %d Responding\n" ,world_rank); 
+	//	printf("Proc %d After recvieving %d from %d tag =%d \n",world_rank ,
+	//		       	numberOfSitesRead, status.MPI_SOURCE, status.MPI_TAG  );
 
 		piece p;
 		size_t is = sizeof(int) + sizeof(cluster) + 2*Width;
@@ -943,12 +944,12 @@ int main(int argc , char* argv[]){
 
 		}
 	
-
+       finish=MPI_Wtime();
 
 	//Finalize MPI
 	MPI_Finalize();
 
-
+	printf("Parallel Elapsed time: %f seconds\n", finish-start); 
 
      	return 0; 
 }
