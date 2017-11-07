@@ -988,11 +988,11 @@ int main(int argc , char* argv[]){
 		MPI_Status st;		
      		//cluster test
 		cluster c;
-		piece p; 
-		MPI_Recv(&p, 1 , MPI_Piece, 0,0, MPI_COMM_WORLD,&st);
+		piece p1; 
+		MPI_Recv(&p1, 1 , MPI_Piece, 0,0, MPI_COMM_WORLD,&st);
 		
-		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",p.pieceClusters[0].clusterID ,p.pieceClusters[0].parentClusID,p.pieceClusters[0].parentPieceID ,
-				p.pieceClusters[0].clusHeight,p.pieceClusters[0].clusWidth,p.pieceClusters[0].clusSize);
+		printf("CID %d, Parent ID %d, pID %d Height %d Widtg %d size %d\n",p1.pieceClusters[0].clusterID ,p1.pieceClusters[0].parentClusID,p1.pieceClusters[0].parentPieceID ,
+				p1.pieceClusters[0].clusHeight,p1.pieceClusters[0].clusWidth,p1.pieceClusters[0].clusSize);
 	
 		
 
