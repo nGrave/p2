@@ -751,8 +751,7 @@ void testPerc(piece *p, int world_rank ,int Width , int Height){
 
 int main(int argc , char* argv[]){
 	double start, finish;
-	start=MPI_Wtime(); /*start timer*/
-	//Init MPI
+		//Init MPI
 	MPI_Init(&argc , &argv );
 	
 	//Get Total Processes available to us
@@ -847,11 +846,11 @@ int main(int argc , char* argv[]){
      	gettimeofday(&start, NULL);
   
     	if(bPerc){
- 		printf("MASTER Seeding Bond Matrix.. Please Wait\n");
+ 		printf("MASTER Seeding Bond Matrix.. %d elements Please Wait \n",n*n);
 		SeedMatrixBond(mat,n,prob);
     	}
     	else{
-		printf("MASTER Site Matrix.. Please Wait\n");
+		printf("MASTER Site Matrix.. %d elements Please Wait\n" ,n*n);
      		SeedMatrixSite(mat,n, prob); 
     	}
     	gettimeofday(&end, NULL);
@@ -859,8 +858,10 @@ int main(int argc , char* argv[]){
 		             end.tv_usec - start.tv_usec) / 1.e6;
  
     	printf("\rTime taken in Seeding Matrix is %12.10f\n", time_taken);
+        
+	//start timing after seeding for consistency
+        start=MPI_Wtime(); /*start timer*/
 
-       
 
 	//Matrix Seeded By MASTER send out some pieces (Can reduce transmission by having each piece seed its own part and then just send the result back -TODO)
 		
