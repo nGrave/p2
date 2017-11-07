@@ -891,7 +891,7 @@ int main(int argc , char* argv[]){
 		findCluster(n , matPartSize,  mat , 0, 0, &p ,0, 0); 
 		testPerc(&p, world_rank , n, matPartSize);
 
-	for(int i = 0 ; i < numProcs -1 ; i++){
+	for(int i = 1 ; i < numProcs -1 ; i++){
 		size_t psiz; 
 		MPI_Status status;
 		MPI_Recv(&psiz,1, my_MPI_SIZE_T,i,i, MPI_COMM_WORLD, &status);
@@ -948,7 +948,7 @@ int main(int argc , char* argv[]){
     		 //end test
 	  	//SEND PIECE BACK HERE
 		
-		size_t psiz = sizeof(p);
+		size_t psiz = p.used;
 		MPI_Send(&psiz,1, my_MPI_SIZE_T,0,world_rank, MPI_COMM_WORLD);
 		printf("Proc %d sent size %zu to piece \n", world_rank, psiz);
 		//now send data
