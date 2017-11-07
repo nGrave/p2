@@ -682,7 +682,7 @@ int main(int argc , char* argv[]){
 	//If there is a connection
 	if( btRow >= 0 && tpRow >=0  && mat[n-1][j].lowerBond){
 		//if bottom doesnt have a parent
-		if(m[numThreads-1].pieceClusters[btRow].parentClusID == -1){ 
+		if(m[numProcs-1].pieceClusters[btRow].parentClusID == -1){ 
 
 			//Top row doesn't have a parent
 			if(m[0].pieceClusters[tpRow].parentClusID == -1 ){
@@ -734,7 +734,7 @@ int main(int argc , char* argv[]){
       int fullPerc =0;
      //Check For Percolation 
      for(int cls =0; cls<n; cls++){
-	if(m[numThreads-1].pieceClusters[cls].clusHeight == arrPartSize+leftOvers){
+	if(m[numThreads-1].pieceClusters[cls].clusHeight == matPartSize+leftOvers){
 		int thisC = m[numThreads -1].pieceClusters[cls].parentClusID;
 		int thisP = m[numThreads -1].pieceClusters[cls].parentPieceID;
 //		printf("This Cluster m[%d][%d] Spans The Whole Bottom Piece Finding Its Root\n", numThreads-1, cls);
