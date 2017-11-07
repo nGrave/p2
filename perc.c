@@ -916,9 +916,8 @@ int main(int argc , char* argv[]){
      		int Height = end -start; 
 		int Width  = n; // 
 
-      		printf("Processor %d Starting work on mat[%d] to mat[%d]\n" , world_rank, start ,end );
+      		printf("Processor %d ready to recieve work expecting  mat[%d] to mat[%d]\n" , world_rank, start ,end );
         
-		
 		site **mat = alloc2d(Height,Width);
         	MPI_Status status;
 		int numberOfSitesRead;
@@ -943,14 +942,17 @@ int main(int argc , char* argv[]){
 		free(mat[0]);
 		free(mat);
 
-		}
+	}
 	
-       finish=MPI_Wtime();
-
+      
+	if(world_rank ==MASTER){
+	finish=MPI_Wtime();
+	printf("Parallel Elapsed time: %f seconds\n", finish-startMPI); 
+	}
 	//Finalize MPI
 	MPI_Finalize();
 
-	printf("Parallel Elapsed time: %f seconds\n", finish-startMPI); 
-
+	
+	
      	return 0; 
 }
